@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>La Mia Biblioteca</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2c3e50">
+  <link rel="icon" href="icon-192.png">
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 2rem;
+      background: #f5f6fa;
+      color: #2c3e50;
+      text-align: center;
+    }
+    h1 { margin-top: 3rem; }
+  </style>
+</head>
+<body>
+  <h1>📚 La Mia Biblioteca</h1>
+  <p>App in costruzione — Step 1: base installabile</p>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js');
+    }
+  </script>
+</body>
+</html>
