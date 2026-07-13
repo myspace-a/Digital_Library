@@ -14,19 +14,149 @@
       padding: 2rem;
       background: #f5f6fa;
       color: #2c3e50;
-      text-align: center;
     }
-    h1 { margin-top: 3rem; }
+    h1 { text-align: center; margin-top: 1rem; }
+
+    #addForm {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin: 2rem 0;
+    }
+    #addForm input {
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    #addForm button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      background: #2c3e50;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    #addForm button:hover { background: #34495e; }
+
+    #bookList {
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .book-card {
+      background: white;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .book-info strong { display: block; }
+    .book-info span { color: #666; font-size: 0.9rem; }
+    .delete-btn {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.4rem 0.7rem;
+      cursor: pointer;
+    }
+    .delete-btn:hover { background: #c0392b; }
+    #emptyMsg { text-align: center; color: #888; margin-top: 2rem; }
   </style>
 </head>
 <body>
   <h1>📚 La Mia Biblioteca</h1>
-  <p>App in costruzione — Step 1: base installabile</p>
+
+  <form id="addForm">
+    <input type="text" id="titleInput" placeholder="Titolo" required>
+    <input type="text" id="authorInput" placeholder="Autore" required>
+    <button type="submit">Aggiungi</button>
+  </form>
+
+  <div id="bookList"></div>
+  <p id="emptyMsg" style="display:none;">Nessun libro ancora. Aggiungine uno sopra!</p>
 
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js');
     }
+
+    const STORAGE_KEY = 'biblioteca_books';
+
+    function getBooks() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }
+
+    function saveBooks(books) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
+    }
+
+    function renderBooks() {
+      const books = getBooks();
+      const list = document.getElementById('bookList');
+      const emptyMsg = document.getElementById('emptyMsg');
+      list.innerHTML = '';
+
+      if (books.length === 0) {
+        emptyMsg.style.display = 'block';
+        return;
+      }
+      emptyMsg.style.display = 'none';
+
+      books.forEach(book => {
+        const card = document.createElement('div');
+        card.className = 'book-card';
+        card.innerHTML = `
+          <div class="book-info">
+            <strong>${escapeHtml(book.title)}</strong>
+            <span>${escapeHtml(book.author)}</span>
+          </div>
+          <button class="delete-btn" data-id="${book.id}">Elimina</button>
+        `;
+        list.appendChild(card);
+      });
+
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => deleteBook(btn.dataset.id));
+      });
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function addBook(title, author) {
+      const books = getBooks();
+      books.push({ id: Date.now().toString(), title, author });
+      saveBooks(books);
+      renderBooks();
+    }
+
+    function deleteBook(id) {
+      const books = getBooks().filter(b => b.id !== id);
+      saveBooks(books);
+      renderBooks();
+    }
+
+    document.getElementById('addForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const titleInput = document.getElementById('titleInput');
+      const authorInput = document.getElementById('authorInput');
+      addBook(titleInput.value.trim(), authorInput.value.trim());
+      titleInput.value = '';
+      authorInput.value = '';
+      titleInput.focus();
+    });
+
+    renderBooks();
   </script>
 </body>
 </html>
