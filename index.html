@@ -23,12 +23,17 @@
       flex-wrap: wrap;
       justify-content: center;
       margin: 2rem 0;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
     }
-    #addForm input {
+    #addForm input,
+    #addForm select {
       padding: 0.5rem;
       border: 1px solid #ccc;
       border-radius: 6px;
       font-size: 1rem;
+      flex: 1 1 140px;
     }
     #addForm button {
       padding: 0.5rem 1rem;
@@ -38,11 +43,12 @@
       color: white;
       font-size: 1rem;
       cursor: pointer;
+      flex: 1 1 100%;
     }
     #addForm button:hover { background: #34495e; }
 
     #bookList {
-      max-width: 500px;
+      max-width: 600px;
       margin: 0 auto;
     }
     .book-card {
@@ -52,11 +58,20 @@
       margin-bottom: 0.5rem;
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
+      gap: 0.5rem;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-    .book-info strong { display: block; }
-    .book-info span { color: #666; font-size: 0.9rem; }
+    .book-info strong { display: block; font-size: 1.05rem; }
+    .book-info .sub { color: #666; font-size: 0.9rem; margin-bottom: 0.4rem; }
+    .badges { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+    .badge {
+      background: #ecf0f1;
+      color: #2c3e50;
+      border-radius: 4px;
+      padding: 0.15rem 0.5rem;
+      font-size: 0.75rem;
+    }
     .delete-btn {
       background: #e74c3c;
       color: white;
@@ -64,6 +79,7 @@
       border-radius: 6px;
       padding: 0.4rem 0.7rem;
       cursor: pointer;
+      flex-shrink: 0;
     }
     .delete-btn:hover { background: #c0392b; }
     #emptyMsg { text-align: center; color: #888; margin-top: 2rem; }
@@ -75,6 +91,38 @@
   <form id="addForm">
     <input type="text" id="titleInput" placeholder="Titolo" required>
     <input type="text" id="authorInput" placeholder="Autore" required>
+    <input type="text" id="publisherInput" placeholder="Editore">
+    <input type="text" id="seriesInput" placeholder="Serie">
+    <input type="text" id="volumeInput" placeholder="Volume">
+    <input type="text" id="isbnInput" placeholder="ISBN">
+    <input type="text" id="shelfInput" placeholder="Scaffale">
+
+    <select id="languageInput">
+      <option value="Italiano">Italiano</option>
+      <option value="English">English</option>
+      <option value="Français">Français</option>
+      <option value="Deutsch">Deutsch</option>
+      <option value="Español">Español</option>
+    </select>
+
+    <select id="formatInput">
+      <option value="Cartaceo">Cartaceo</option>
+      <option value="Ebook">Ebook</option>
+      <option value="Audiolibro">Audiolibro</option>
+    </select>
+
+    <select id="statusInput">
+      <option value="Da leggere">Da leggere</option>
+      <option value="In lettura">In lettura</option>
+      <option value="Letto">Letto</option>
+    </select>
+
+    <select id="ownershipInput">
+      <option value="Posseduto">Posseduto</option>
+      <option value="In prestito">In prestito</option>
+      <option value="Non posseduto">Non posseduto</option>
+    </select>
+
     <button type="submit">Aggiungi</button>
   </form>
 
@@ -97,6 +145,12 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
     }
 
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str || '';
+      return div.innerHTML;
+    }
+
     function renderBooks() {
       const books = getBooks();
       const list = document.getElementById('bookList');
@@ -112,10 +166,23 @@
       books.forEach(book => {
         const card = document.createElement('div');
         card.className = 'book-card';
+
+        const subParts = [];
+        if (book.publisher) subParts.push(escapeHtml(book.publisher));
+        if (book.series) subParts.push(escapeHtml(book.series) + (book.volume ? ' #' + escapeHtml(book.volume) : ''));
+        if (book.isbn) subParts.push('ISBN ' + escapeHtml(book.isbn));
+
         card.innerHTML = `
           <div class="book-info">
             <strong>${escapeHtml(book.title)}</strong>
-            <span>${escapeHtml(book.author)}</span>
+            <div class="sub">${escapeHtml(book.author)}${subParts.length ? ' — ' + subParts.join(' · ') : ''}</div>
+            <div class="badges">
+              <span class="badge">${escapeHtml(book.status)}</span>
+              <span class="badge">${escapeHtml(book.ownership)}</span>
+              <span class="badge">${escapeHtml(book.format)}</span>
+              <span class="badge">${escapeHtml(book.language)}</span>
+              <span class="badge">${escapeHtml(book.shelf || 'Senza scaffale')}</span>
+            </div>
           </div>
           <button class="delete-btn" data-id="${book.id}">Elimina</button>
         `;
@@ -127,15 +194,9 @@
       });
     }
 
-    function escapeHtml(str) {
-      const div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
-    }
-
-    function addBook(title, author) {
+    function addBook(data) {
       const books = getBooks();
-      books.push({ id: Date.now().toString(), title, author });
+      books.push({ id: Date.now().toString(), ...data });
       saveBooks(books);
       renderBooks();
     }
@@ -148,12 +209,42 @@
 
     document.getElementById('addForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      const titleInput = document.getElementById('titleInput');
-      const authorInput = document.getElementById('authorInput');
-      addBook(titleInput.value.trim(), authorInput.value.trim());
-      titleInput.value = '';
-      authorInput.value = '';
-      titleInput.focus();
+      const fields = {
+        title: document.getElementById('titleInput'),
+        author: document.getElementById('authorInput'),
+        publisher: document.getElementById('publisherInput'),
+        series: document.getElementById('seriesInput'),
+        volume: document.getElementById('volumeInput'),
+        isbn: document.getElementById('isbnInput'),
+        shelf: document.getElementById('shelfInput'),
+        language: document.getElementById('languageInput'),
+        format: document.getElementById('formatInput'),
+        status: document.getElementById('statusInput'),
+        ownership: document.getElementById('ownershipInput'),
+      };
+
+      addBook({
+        title: fields.title.value.trim(),
+        author: fields.author.value.trim(),
+        publisher: fields.publisher.value.trim(),
+        series: fields.series.value.trim(),
+        volume: fields.volume.value.trim(),
+        isbn: fields.isbn.value.trim(),
+        shelf: fields.shelf.value.trim(),
+        language: fields.language.value,
+        format: fields.format.value,
+        status: fields.status.value,
+        ownership: fields.ownership.value,
+      });
+
+      fields.title.value = '';
+      fields.author.value = '';
+      fields.publisher.value = '';
+      fields.series.value = '';
+      fields.volume.value = '';
+      fields.isbn.value = '';
+      fields.shelf.value = '';
+      fields.title.focus();
     });
 
     renderBooks();
