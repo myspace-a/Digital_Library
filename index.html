@@ -17,7 +17,11 @@
     }
     h1 { text-align: center; margin-top: 1rem; margin-bottom: 0.5rem; }
 
-    #langBar { text-align: center; margin-bottom: 1rem; }
+    #langBar { text-align: center; margin-bottom: 1rem; position: relative; }
+    .lang-dropdown {
+      position: relative;
+      display: inline-block;
+    }
     #langToggle {
       padding: 0.4rem 0.9rem;
       border: 1px solid #2c3e50;
@@ -26,8 +30,40 @@
       color: #2c3e50;
       font-size: 0.9rem;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
     }
     #langToggle:hover { background: #ecf0f1; }
+    #langToggle .arrow { font-size: 0.7rem; }
+
+    #langMenu {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      min-width: 140px;
+      z-index: 10;
+      overflow: hidden;
+    }
+    #langMenu[hidden] { display: none; }
+    .lang-option {
+      display: block;
+      width: 100%;
+      padding: 0.5rem 0.9rem;
+      border: none;
+      background: white;
+      color: #2c3e50;
+      font-size: 0.9rem;
+      text-align: left;
+      cursor: pointer;
+    }
+    .lang-option:hover { background: #ecf0f1; }
+    .lang-option.active { font-weight: bold; background: #f5f6fa; }
 
     #addForm {
       display: flex;
@@ -99,8 +135,19 @@
 </head>
 <body>
   <h1 data-i18n="appTitle">📚 La Mia Biblioteca</h1>
+
   <div id="langBar">
-    <button id="langToggle" type="button">🇬🇧</button>
+    <div class="lang-dropdown">
+      <button id="langToggle" type="button" aria-haspopup="true" aria-expanded="false">
+        <span id="langToggleFlag">🇮🇹</span>
+        <span id="langToggleLabel">Italiano</span>
+        <span class="arrow">▾</span>
+      </button>
+      <div id="langMenu" hidden>
+        <button type="button" class="lang-option" data-lang="it">🇮🇹 Italiano</button>
+        <button type="button" class="lang-option" data-lang="en">🇬🇧 English</button>
+      </div>
+    </div>
   </div>
 
   <form id="addForm">
@@ -166,7 +213,8 @@
         phVolume: 'Volume',
         phIsbn: 'ISBN',
         phShelf: 'Scaffale',
-        toggleLabel: '🇬🇧'
+        currentLangLabel: 'Italiano',
+        currentLangFlag: '🇮🇹'
       },
       en: {
         appTitle: '📚 My Library',
@@ -180,7 +228,8 @@
         phVolume: 'Volume',
         phIsbn: 'ISBN',
         phShelf: 'Shelf',
-        toggleLabel: '🇮🇹'
+        currentLangLabel: 'English',
+        currentLangFlag: '🇬🇧'
       }
     };
 
@@ -232,7 +281,12 @@
         opt.textContent = valueTranslations[lang][canonicalValue] || canonicalValue;
       });
 
-      document.getElementById('langToggle').textContent = t.toggleLabel;
+      document.getElementById('langToggleFlag').textContent = t.currentLangFlag;
+      document.getElementById('langToggleLabel').textContent = t.currentLangLabel;
+
+      document.querySelectorAll('.lang-option').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
 
       renderBooks(); // refresh badges in the new language
     }
@@ -348,9 +402,41 @@
       fields.title.focus();
     });
 
-    document.getElementById('langToggle').addEventListener('click', () => {
-      const newLang = getLang() === 'it' ? 'en' : 'it';
-      translatePage(newLang);
+    // --- Language dropdown wiring ---
+    const langToggle = document.getElementById('langToggle');
+    const langMenu = document.getElementById('langMenu');
+
+    function closeLangMenu() {
+      langMenu.hidden = true;
+      langToggle.setAttribute('aria-expanded', 'false');
+    }
+
+    function openLangMenu() {
+      langMenu.hidden = false;
+      langToggle.setAttribute('aria-expanded', 'true');
+    }
+
+    langToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (langMenu.hidden) {
+        openLangMenu();
+      } else {
+        closeLangMenu();
+      }
+    });
+
+    document.querySelectorAll('.lang-option').forEach(btn => {
+      btn.addEventListener('click', () => {
+        translatePage(btn.dataset.lang);
+        closeLangMenu();
+      });
+    });
+
+    // Close the menu if the user clicks anywhere else on the page
+    document.addEventListener('click', (e) => {
+      if (!langMenu.hidden && !e.target.closest('.lang-dropdown')) {
+        closeLangMenu();
+      }
     });
 
     translatePage(getLang());
