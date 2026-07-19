@@ -14,6 +14,12 @@
 - VS Code (view/edit files locally when needed): https://code.visualstudio.com — install via the .deb download, double-click to install through Ubuntu Software.
 - GitHub Pages (free hosting for live testing, incl. on Android via "Add to Home Screen")
 
+## Keeping this doc in sync
+This file lives in the GitHub repo (root or /docs) as the source of truth, not just as a project knowledge upload. Whenever it's updated:
+1. Commit the new version to GitHub (Add file / edit → paste → commit), same as any code file.
+2. In project knowledge, use the GitHub sync option ("Sync now") to pull the latest version in — not the quick "Add to project" button from chat, which skips GitHub entirely and has no version history.
+This keeps one single up-to-date version with full change history, instead of two diverging copies.
+
 ## Build sequence (small steps, one per chat)
 1. Basic app shell — PWA files (manifest, icon), installable empty page
 2. Book data model + manual add/view/delete (local storage only, no cloud yet)
