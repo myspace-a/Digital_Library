@@ -15,7 +15,19 @@
       background: #f5f6fa;
       color: #2c3e50;
     }
-    h1 { text-align: center; margin-top: 1rem; }
+    h1 { text-align: center; margin-top: 1rem; margin-bottom: 0.5rem; }
+
+    #langBar { text-align: center; margin-bottom: 1rem; }
+    #langToggle {
+      padding: 0.4rem 0.9rem;
+      border: 1px solid #2c3e50;
+      border-radius: 6px;
+      background: white;
+      color: #2c3e50;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    #langToggle:hover { background: #ecf0f1; }
 
     #addForm {
       display: flex;
@@ -86,48 +98,51 @@
   </style>
 </head>
 <body>
-  <h1>📚 La Mia Biblioteca</h1>
+  <h1 data-i18n="appTitle">📚 La Mia Biblioteca</h1>
+  <div id="langBar">
+    <button id="langToggle" type="button">🇬🇧</button>
+  </div>
 
   <form id="addForm">
-    <input type="text" id="titleInput" placeholder="Titolo" required>
-    <input type="text" id="authorInput" placeholder="Autore" required>
-    <input type="text" id="publisherInput" placeholder="Editore">
-    <input type="text" id="seriesInput" placeholder="Serie">
-    <input type="text" id="volumeInput" placeholder="Volume">
-    <input type="text" id="isbnInput" placeholder="ISBN">
-    <input type="text" id="shelfInput" placeholder="Scaffale">
+    <input type="text" id="titleInput" data-i18n-placeholder="phTitle" placeholder="Titolo" required>
+    <input type="text" id="authorInput" data-i18n-placeholder="phAuthor" placeholder="Autore" required>
+    <input type="text" id="publisherInput" data-i18n-placeholder="phPublisher" placeholder="Editore">
+    <input type="text" id="seriesInput" data-i18n-placeholder="phSeries" placeholder="Serie">
+    <input type="text" id="volumeInput" data-i18n-placeholder="phVolume" placeholder="Volume">
+    <input type="text" id="isbnInput" data-i18n-placeholder="phIsbn" placeholder="ISBN">
+    <input type="text" id="shelfInput" data-i18n-placeholder="phShelf" placeholder="Scaffale">
 
     <select id="languageInput">
-      <option value="Italiano">Italiano</option>
-      <option value="English">English</option>
-      <option value="Français">Français</option>
-      <option value="Deutsch">Deutsch</option>
-      <option value="Español">Español</option>
+      <option value="Italiano" data-i18n-option="Italiano">Italiano</option>
+      <option value="English" data-i18n-option="English">English</option>
+      <option value="Français" data-i18n-option="Français">Français</option>
+      <option value="Deutsch" data-i18n-option="Deutsch">Deutsch</option>
+      <option value="Español" data-i18n-option="Español">Español</option>
     </select>
 
     <select id="formatInput">
-      <option value="Cartaceo">Cartaceo</option>
-      <option value="Ebook">Ebook</option>
-      <option value="Audiolibro">Audiolibro</option>
+      <option value="Cartaceo" data-i18n-option="Cartaceo">Cartaceo</option>
+      <option value="Ebook" data-i18n-option="Ebook">Ebook</option>
+      <option value="Audiolibro" data-i18n-option="Audiolibro">Audiolibro</option>
     </select>
 
     <select id="statusInput">
-      <option value="Da leggere">Da leggere</option>
-      <option value="In lettura">In lettura</option>
-      <option value="Letto">Letto</option>
+      <option value="Da leggere" data-i18n-option="Da leggere">Da leggere</option>
+      <option value="In lettura" data-i18n-option="In lettura">In lettura</option>
+      <option value="Letto" data-i18n-option="Letto">Letto</option>
     </select>
 
     <select id="ownershipInput">
-      <option value="Posseduto">Posseduto</option>
-      <option value="In prestito">In prestito</option>
-      <option value="Non posseduto">Non posseduto</option>
+      <option value="Posseduto" data-i18n-option="Posseduto">Posseduto</option>
+      <option value="In prestito" data-i18n-option="In prestito">In prestito</option>
+      <option value="Non posseduto" data-i18n-option="Non posseduto">Non posseduto</option>
     </select>
 
-    <button type="submit">Aggiungi</button>
+    <button type="submit" data-i18n="addBtn">Aggiungi</button>
   </form>
 
   <div id="bookList"></div>
-  <p id="emptyMsg" style="display:none;">Nessun libro ancora. Aggiungine uno sopra!</p>
+  <p id="emptyMsg" style="display:none;" data-i18n="emptyMsg">Nessun libro ancora. Aggiungine uno sopra!</p>
 
   <script>
     if ('serviceWorker' in navigator) {
@@ -135,6 +150,92 @@
     }
 
     const STORAGE_KEY = 'biblioteca_books';
+    const LANG_KEY = 'biblioteca_lang';
+
+    // --- Fixed UI text (buttons, placeholders, messages) ---
+    const translations = {
+      it: {
+        appTitle: '📚 La Mia Biblioteca',
+        addBtn: 'Aggiungi',
+        deleteBtn: 'Elimina',
+        emptyMsg: 'Nessun libro ancora. Aggiungine uno sopra!',
+        phTitle: 'Titolo',
+        phAuthor: 'Autore',
+        phPublisher: 'Editore',
+        phSeries: 'Serie',
+        phVolume: 'Volume',
+        phIsbn: 'ISBN',
+        phShelf: 'Scaffale',
+        toggleLabel: '🇬🇧'
+      },
+      en: {
+        appTitle: '📚 My Library',
+        addBtn: 'Add',
+        deleteBtn: 'Delete',
+        emptyMsg: 'No books yet. Add one above!',
+        phTitle: 'Title',
+        phAuthor: 'Author',
+        phPublisher: 'Publisher',
+        phSeries: 'Series',
+        phVolume: 'Volume',
+        phIsbn: 'ISBN',
+        phShelf: 'Shelf',
+        toggleLabel: '🇮🇹'
+      }
+    };
+
+    // --- Values stored in books stay in Italian; this only changes what's DISPLAYED ---
+    const valueTranslations = {
+      it: {
+        'Cartaceo': 'Cartaceo', 'Ebook': 'Ebook', 'Audiolibro': 'Audiolibro',
+        'Da leggere': 'Da leggere', 'In lettura': 'In lettura', 'Letto': 'Letto',
+        'Posseduto': 'Posseduto', 'In prestito': 'In prestito', 'Non posseduto': 'Non posseduto',
+        'Italiano': 'Italiano', 'English': 'English', 'Français': 'Français', 'Deutsch': 'Deutsch', 'Español': 'Español',
+        'Senza scaffale': 'Senza scaffale'
+      },
+      en: {
+        'Cartaceo': 'Paperback', 'Ebook': 'Ebook', 'Audiolibro': 'Audiobook',
+        'Da leggere': 'To read', 'In lettura': 'Reading', 'Letto': 'Read',
+        'Posseduto': 'Owned', 'In prestito': 'On loan', 'Non posseduto': 'Not owned',
+        'Italiano': 'Italian', 'English': 'English', 'Français': 'French', 'Deutsch': 'German', 'Español': 'Spanish',
+        'Senza scaffale': 'No shelf'
+      }
+    };
+
+    function getLang() {
+      return localStorage.getItem(LANG_KEY) || 'it';
+    }
+
+    function translateValue(value) {
+      const lang = getLang();
+      return valueTranslations[lang][value] || value;
+    }
+
+    function translatePage(lang) {
+      localStorage.setItem(LANG_KEY, lang);
+      document.documentElement.lang = lang;
+
+      const t = translations[lang];
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) el.textContent = t[key];
+      });
+
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (t[key]) el.placeholder = t[key];
+      });
+
+      document.querySelectorAll('option[data-i18n-option]').forEach(opt => {
+        const canonicalValue = opt.getAttribute('data-i18n-option');
+        opt.textContent = valueTranslations[lang][canonicalValue] || canonicalValue;
+      });
+
+      document.getElementById('langToggle').textContent = t.toggleLabel;
+
+      renderBooks(); // refresh badges in the new language
+    }
 
     function getBooks() {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -177,14 +278,14 @@
             <strong>${escapeHtml(book.title)}</strong>
             <div class="sub">${escapeHtml(book.author)}${subParts.length ? ' — ' + subParts.join(' · ') : ''}</div>
             <div class="badges">
-              <span class="badge">${escapeHtml(book.status)}</span>
-              <span class="badge">${escapeHtml(book.ownership)}</span>
-              <span class="badge">${escapeHtml(book.format)}</span>
-              <span class="badge">${escapeHtml(book.language)}</span>
-              <span class="badge">${escapeHtml(book.shelf || 'Senza scaffale')}</span>
+              <span class="badge">${escapeHtml(translateValue(book.status))}</span>
+              <span class="badge">${escapeHtml(translateValue(book.ownership))}</span>
+              <span class="badge">${escapeHtml(translateValue(book.format))}</span>
+              <span class="badge">${escapeHtml(translateValue(book.language))}</span>
+              <span class="badge">${escapeHtml(translateValue(book.shelf || 'Senza scaffale'))}</span>
             </div>
           </div>
-          <button class="delete-btn" data-id="${book.id}">Elimina</button>
+          <button class="delete-btn" data-id="${book.id}">${escapeHtml(translations[getLang()].deleteBtn)}</button>
         `;
         list.appendChild(card);
       });
@@ -247,7 +348,12 @@
       fields.title.focus();
     });
 
-    renderBooks();
+    document.getElementById('langToggle').addEventListener('click', () => {
+      const newLang = getLang() === 'it' ? 'en' : 'it';
+      translatePage(newLang);
+    });
+
+    translatePage(getLang());
   </script>
 </body>
 </html>
