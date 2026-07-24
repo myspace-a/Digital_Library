@@ -149,6 +149,100 @@
     }
     .delete-btn:hover { background: #c0392b; }
     #emptyMsg { text-align: center; color: #888; margin-top: 2rem; }
+
+    #shelfMgmt {
+      max-width: 600px;
+      margin: 0 auto 1.5rem;
+      background: white;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    #shelfMgmt h2 { margin: 0 0 0.75rem; font-size: 1.1rem; }
+    #shelfAddRow { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+    #newShelfInput {
+      flex: 1;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+    #addShelfBtn {
+      padding: 0.5rem 0.9rem;
+      border: none;
+      border-radius: 6px;
+      background: #2c3e50;
+      color: white;
+      cursor: pointer;
+    }
+    #addShelfBtn:hover { background: #34495e; }
+    #shelfList { list-style: none; margin: 0; padding: 0; }
+    .shelf-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.4rem 0.2rem;
+      border-bottom: 1px solid #eee;
+    }
+    .shelf-row:last-child { border-bottom: none; }
+    .shelf-name {
+      cursor: pointer;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+    }
+    .shelf-name:hover { background: #ecf0f1; }
+    .shelf-edit-input {
+      flex: 1;
+      padding: 0.3rem 0.4rem;
+      border: 1px solid #2c3e50;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      margin-right: 0.5rem;
+    }
+    .shelf-delete-btn {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .shelf-delete-btn:hover { background: #c0392b; }
+    #noShelvesMsg { color: #888; font-size: 0.9rem; margin: 0; }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-overlay[hidden] { display: none; }
+    .modal-box {
+      background: white;
+      border-radius: 8px;
+      padding: 1.25rem 1.5rem;
+      max-width: 360px;
+      width: 90%;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+    .modal-box h3 { margin: 0 0 0.5rem; }
+    .modal-box p { margin: 0 0 1rem; color: #444; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
+    .modal-actions button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    #modalBtnSecondary { background: #ecf0f1; color: #2c3e50; }
+    #modalBtnSecondary:hover { background: #dfe4e6; }
+    #modalBtnPrimary { background: #2c3e50; color: white; }
+    #modalBtnPrimary:hover { background: #34495e; }
   </style>
 </head>
 <body>
@@ -187,6 +281,27 @@
     </div>
   </div>
 
+  <div id="shelfMgmt">
+    <h2 data-i18n="shelfMgmtTitle">Gestione scaffali</h2>
+    <div id="shelfAddRow">
+      <input type="text" id="newShelfInput" data-i18n-placeholder="newShelfPh" placeholder="Nuovo scaffale">
+      <button id="addShelfBtn" type="button" data-i18n="addShelfBtn">Aggiungi scaffale</button>
+    </div>
+    <ul id="shelfList"></ul>
+    <p id="noShelvesMsg" style="display:none;" data-i18n="noShelvesMsg">Nessuno scaffale creato.</p>
+  </div>
+
+  <div id="modalOverlay" class="modal-overlay" hidden>
+    <div class="modal-box">
+      <h3 id="modalTitle"></h3>
+      <p id="modalMsg"></p>
+      <div class="modal-actions">
+        <button id="modalBtnSecondary" type="button"></button>
+        <button id="modalBtnPrimary" type="button"></button>
+      </div>
+    </div>
+  </div>
+
   <form id="addForm">
     <input type="text" id="titleInput" data-i18n-placeholder="phTitle" placeholder="Titolo" required>
     <input type="text" id="authorInput" data-i18n-placeholder="phAuthor" placeholder="Autore" required>
@@ -194,7 +309,7 @@
     <input type="text" id="seriesInput" data-i18n-placeholder="phSeries" placeholder="Serie">
     <input type="text" id="volumeInput" data-i18n-placeholder="phVolume" placeholder="Volume">
     <input type="text" id="isbnInput" data-i18n-placeholder="phIsbn" placeholder="ISBN">
-    <input type="text" id="shelfInput" data-i18n-placeholder="phShelf" placeholder="Scaffale">
+    <select id="shelfInput"></select>
 
     <select id="languageInput">
       <option value="Italiano" data-i18n-option="Italiano">Italiano</option>
@@ -235,6 +350,7 @@
 
     const STORAGE_KEY = 'biblioteca_books';
     const LANG_KEY = 'biblioteca_lang';
+    const SHELVES_KEY = 'biblioteca_shelves';
 
     // --- Fixed UI text (buttons, placeholders, messages) ---
     const translations = {
@@ -255,7 +371,22 @@
         statOwnedLabel: 'Posseduti',
         statOnLoanLabel: 'In prestito',
         currentLangLabel: 'Italiano',
-        currentLangFlag: '🇮🇹'
+        currentLangFlag: '🇮🇹',
+        shelfMgmtTitle: 'Gestione scaffali',
+        newShelfPh: 'Nuovo scaffale',
+        addShelfBtn: 'Aggiungi scaffale',
+        noShelvesMsg: 'Nessuno scaffale creato.',
+        confirmDeleteShelfTitle: 'Eliminare lo scaffale?',
+        confirmDeleteShelfMsg: 'I libri assegnati a questo scaffale diventeranno "Senza scaffale".',
+        confirmMergeTitle: 'Scaffale già esistente',
+        confirmMergeMsg: 'Esiste già uno scaffale con questo nome. Vuoi unire i due scaffali?',
+        mergeYesBtn: 'Sì, unisci',
+        mergeNoBtn: 'No, modifica nome',
+        modalCancelBtn: 'Annulla',
+        modalConfirmBtn: 'Conferma',
+        modalOkBtn: 'OK',
+        duplicateShelfTitle: 'Scaffale già esistente',
+        duplicateShelfMsg: 'Esiste già uno scaffale con questo nome (maiuscole e minuscole non fanno differenza).'
       },
       en: {
         appTitle: '📚 My Library',
@@ -274,7 +405,22 @@
         statOwnedLabel: 'Owned',
         statOnLoanLabel: 'On loan',
         currentLangLabel: 'English',
-        currentLangFlag: '🇬🇧'
+        currentLangFlag: '🇬🇧',
+        shelfMgmtTitle: 'Shelf management',
+        newShelfPh: 'New shelf',
+        addShelfBtn: 'Add shelf',
+        noShelvesMsg: 'No shelves yet.',
+        confirmDeleteShelfTitle: 'Delete this shelf?',
+        confirmDeleteShelfMsg: 'Books on this shelf will become "No shelf".',
+        confirmMergeTitle: 'Shelf already exists',
+        confirmMergeMsg: 'A shelf with this name already exists. Do you want to merge the two shelves?',
+        mergeYesBtn: 'Yes, merge',
+        mergeNoBtn: 'No, edit name',
+        modalCancelBtn: 'Cancel',
+        modalConfirmBtn: 'Confirm',
+        modalOkBtn: 'OK',
+        duplicateShelfTitle: 'Shelf already exists',
+        duplicateShelfMsg: 'A shelf with this name already exists (capitalization doesn\'t matter).'
       }
     };
 
@@ -334,6 +480,7 @@
       });
 
       renderBooks(); // refresh badges in the new language
+      renderShelves(); // refresh shelf list buttons in the new language
     }
 
     function getBooks() {
@@ -418,6 +565,250 @@
       renderBooks();
     }
 
+    // --- Shelf management ---
+
+    function getShelves() {
+      const raw = localStorage.getItem(SHELVES_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }
+
+    function saveShelves(shelves) {
+      localStorage.setItem(SHELVES_KEY, JSON.stringify(shelves));
+    }
+
+    // First time this feature runs, build the shelf list from any shelf
+    // names already typed into existing books, so nothing gets lost.
+    function initShelvesFromBooks() {
+      if (localStorage.getItem(SHELVES_KEY) !== null) return;
+      const names = [];
+      getBooks().forEach(b => {
+        const shelf = (b.shelf || '').trim();
+        if (shelf && !names.some(n => n.toLowerCase() === shelf.toLowerCase())) {
+          names.push(shelf);
+        }
+      });
+      saveShelves(names);
+    }
+
+    function renderShelves() {
+      const shelves = getShelves();
+      const list = document.getElementById('shelfList');
+      const emptyMsg = document.getElementById('noShelvesMsg');
+      const t = translations[getLang()];
+      list.innerHTML = '';
+
+      if (shelves.length === 0) {
+        emptyMsg.style.display = 'block';
+        return;
+      }
+      emptyMsg.style.display = 'none';
+
+      shelves.forEach(name => {
+        const li = document.createElement('li');
+        li.className = 'shelf-row';
+        li.innerHTML = `
+          <span class="shelf-name" tabindex="0" data-shelf="${escapeHtml(name)}">${escapeHtml(name)}</span>
+          <button class="shelf-delete-btn" data-shelf="${escapeHtml(name)}">${escapeHtml(t.deleteBtn)}</button>
+        `;
+        list.appendChild(li);
+      });
+
+      list.querySelectorAll('.shelf-name').forEach(span => {
+        span.addEventListener('click', () => startEditShelf(span));
+      });
+      list.querySelectorAll('.shelf-delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => confirmDeleteShelf(btn.dataset.shelf));
+      });
+
+      renderShelfOptions();
+    }
+
+    // Keeps the "add book" form's Shelf dropdown in sync with the managed shelf list
+    function renderShelfOptions() {
+      const select = document.getElementById('shelfInput');
+      if (!select) return;
+
+      const previousValue = select.value;
+      const shelves = getShelves();
+      select.innerHTML = '';
+
+      const noneOpt = document.createElement('option');
+      noneOpt.value = '';
+      noneOpt.textContent = translateValue('Senza scaffale');
+      select.appendChild(noneOpt);
+
+      shelves.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        select.appendChild(opt);
+      });
+
+      // Keep the previously selected shelf chosen if it still exists
+      if (shelves.includes(previousValue)) {
+        select.value = previousValue;
+      }
+    }
+
+    function addShelf() {
+      const input = document.getElementById('newShelfInput');
+      const name = input.value.trim();
+      if (!name) return;
+
+      const shelves = getShelves();
+      const exists = shelves.some(s => s.toLowerCase() === name.toLowerCase());
+      if (exists) {
+        const t = translations[getLang()];
+        showModal({
+          title: t.duplicateShelfTitle,
+          msg: t.duplicateShelfMsg,
+          primaryLabel: t.modalOkBtn,
+          onPrimary: hideModal
+        });
+        return;
+      }
+
+      shelves.push(name);
+      saveShelves(shelves);
+      input.value = '';
+      renderShelves();
+    }
+
+    function confirmDeleteShelf(name) {
+      const t = translations[getLang()];
+      showModal({
+        title: t.confirmDeleteShelfTitle,
+        msg: t.confirmDeleteShelfMsg,
+        primaryLabel: t.modalConfirmBtn,
+        secondaryLabel: t.modalCancelBtn,
+        onPrimary: () => { deleteShelf(name); hideModal(); },
+        onSecondary: hideModal
+      });
+    }
+
+    function deleteShelf(name) {
+      const shelves = getShelves().filter(s => s.toLowerCase() !== name.toLowerCase());
+      saveShelves(shelves);
+
+      // Books that were on this shelf become unassigned ("Senza scaffale")
+      const books = getBooks().map(b =>
+        (b.shelf && b.shelf.toLowerCase() === name.toLowerCase()) ? { ...b, shelf: '' } : b
+      );
+      saveBooks(books);
+
+      renderShelves();
+      renderBooks();
+    }
+
+    function startEditShelf(span) {
+      const oldName = span.dataset.shelf;
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'shelf-edit-input';
+      input.value = oldName;
+      span.replaceWith(input);
+      input.focus();
+      input.select();
+
+      let settled = false;
+      function finish(commit) {
+        if (settled) return;
+        settled = true;
+        if (!commit) { renderShelves(); return; }
+
+        const newName = input.value.trim();
+        if (!newName || newName.toLowerCase() === oldName.toLowerCase()) {
+          renderShelves();
+          return;
+        }
+        attemptRenameShelf(oldName, newName);
+      }
+
+      input.addEventListener('blur', () => finish(true));
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') finish(true);
+        if (e.key === 'Escape') finish(false);
+      });
+    }
+
+    function attemptRenameShelf(oldName, newName) {
+      const shelves = getShelves();
+      const duplicate = shelves.find(s =>
+        s.toLowerCase() === newName.toLowerCase() && s.toLowerCase() !== oldName.toLowerCase()
+      );
+
+      if (duplicate) {
+        const t = translations[getLang()];
+        showModal({
+          title: t.confirmMergeTitle,
+          msg: t.confirmMergeMsg,
+          primaryLabel: t.mergeYesBtn,
+          secondaryLabel: t.mergeNoBtn,
+          onPrimary: () => { mergeShelves(oldName, duplicate); hideModal(); },
+          onSecondary: () => { hideModal(); renderShelves(); }
+        });
+        return;
+      }
+
+      renameShelf(oldName, newName);
+    }
+
+    function renameShelf(oldName, newName) {
+      const shelves = getShelves().map(s => s.toLowerCase() === oldName.toLowerCase() ? newName : s);
+      saveShelves(shelves);
+
+      const books = getBooks().map(b =>
+        (b.shelf && b.shelf.toLowerCase() === oldName.toLowerCase()) ? { ...b, shelf: newName } : b
+      );
+      saveBooks(books);
+
+      renderShelves();
+      renderBooks();
+    }
+
+    function mergeShelves(oldName, targetName) {
+      const shelves = getShelves().filter(s => s.toLowerCase() !== oldName.toLowerCase());
+      saveShelves(shelves);
+
+      const books = getBooks().map(b =>
+        (b.shelf && b.shelf.toLowerCase() === oldName.toLowerCase()) ? { ...b, shelf: targetName } : b
+      );
+      saveBooks(books);
+
+      renderShelves();
+      renderBooks();
+    }
+
+    // --- Reusable in-app confirmation modal (replaces browser confirm/alert) ---
+
+    function showModal({ title, msg, primaryLabel, secondaryLabel, onPrimary, onSecondary }) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalMsg').textContent = msg;
+      const primaryBtn = document.getElementById('modalBtnPrimary');
+      const secondaryBtn = document.getElementById('modalBtnSecondary');
+      primaryBtn.textContent = primaryLabel;
+      primaryBtn.onclick = onPrimary;
+
+      if (secondaryLabel) {
+        secondaryBtn.textContent = secondaryLabel;
+        secondaryBtn.onclick = onSecondary;
+        secondaryBtn.style.display = '';
+      } else {
+        secondaryBtn.style.display = 'none';
+      }
+
+      document.getElementById('modalOverlay').hidden = false;
+    }
+
+    function hideModal() {
+      document.getElementById('modalOverlay').hidden = true;
+    }
+
+    document.getElementById('addShelfBtn').addEventListener('click', addShelf);
+    document.getElementById('newShelfInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') addShelf();
+    });
+
     document.getElementById('addForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const fields = {
@@ -495,6 +886,7 @@
       }
     });
 
+    initShelvesFromBooks();
     translatePage(getLang());
   </script>
 </body>
