@@ -17,6 +17,24 @@
     }
     h1 { text-align: center; margin-top: 1rem; margin-bottom: 0.5rem; }
 
+    #statsBar {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin: 0.5rem 0 1.5rem;
+    }
+    .stat-box {
+      background: white;
+      border-radius: 8px;
+      padding: 0.6rem 1.1rem;
+      min-width: 90px;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .stat-box .stat-number { display: block; font-size: 1.4rem; font-weight: bold; }
+    .stat-box .stat-label { font-size: 0.75rem; color: #666; }
+
     #langBar { text-align: center; margin-bottom: 1rem; position: relative; }
     .lang-dropdown {
       position: relative;
@@ -150,6 +168,25 @@
     </div>
   </div>
 
+  <div id="statsBar">
+    <div class="stat-box">
+      <span class="stat-number" id="statTotal">0</span>
+      <span class="stat-label" data-i18n="statTotalLabel">Totale</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-number" id="statRead">0</span>
+      <span class="stat-label" data-i18n="statReadLabel">Letti</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-number" id="statOwned">0</span>
+      <span class="stat-label" data-i18n="statOwnedLabel">Posseduti</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-number" id="statOnLoan">0</span>
+      <span class="stat-label" data-i18n="statOnLoanLabel">In prestito</span>
+    </div>
+  </div>
+
   <form id="addForm">
     <input type="text" id="titleInput" data-i18n-placeholder="phTitle" placeholder="Titolo" required>
     <input type="text" id="authorInput" data-i18n-placeholder="phAuthor" placeholder="Autore" required>
@@ -213,6 +250,10 @@
         phVolume: 'Volume',
         phIsbn: 'ISBN',
         phShelf: 'Scaffale',
+        statTotalLabel: 'Totale',
+        statReadLabel: 'Letti',
+        statOwnedLabel: 'Posseduti',
+        statOnLoanLabel: 'In prestito',
         currentLangLabel: 'Italiano',
         currentLangFlag: '🇮🇹'
       },
@@ -228,6 +269,10 @@
         phVolume: 'Volume',
         phIsbn: 'ISBN',
         phShelf: 'Shelf',
+        statTotalLabel: 'Total',
+        statReadLabel: 'Read',
+        statOwnedLabel: 'Owned',
+        statOnLoanLabel: 'On loan',
         currentLangLabel: 'English',
         currentLangFlag: '🇬🇧'
       }
@@ -306,6 +351,14 @@
       return div.innerHTML;
     }
 
+    function updateStats() {
+      const books = getBooks();
+      document.getElementById('statTotal').textContent = books.length;
+      document.getElementById('statRead').textContent = books.filter(b => b.status === 'Letto').length;
+      document.getElementById('statOwned').textContent = books.filter(b => b.ownership === 'Posseduto').length;
+      document.getElementById('statOnLoan').textContent = books.filter(b => b.ownership === 'In prestito').length;
+    }
+
     function renderBooks() {
       const books = getBooks();
       const list = document.getElementById('bookList');
@@ -314,6 +367,7 @@
 
       if (books.length === 0) {
         emptyMsg.style.display = 'block';
+        updateStats();
         return;
       }
       emptyMsg.style.display = 'none';
@@ -347,6 +401,8 @@
       document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', () => deleteBook(btn.dataset.id));
       });
+
+      updateStats();
     }
 
     function addBook(data) {
