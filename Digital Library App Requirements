@@ -1,0 +1,84 @@
+
+**Personal Digital Library App — Requirements**
+
+Build a personal book cataloging web app (Progressive Web App) that works on Android and browser, stores data on Google Drive/cloud, and works offline.
+
+**UI language:** Italian and English, user-switchable via a dropdown menu showing each option with its flag icon and language name (e.g. 🇮🇹 Italiano / 🇬🇧 English). All labels, buttons, and fixed field values (e.g. Cartaceo, Posseduto, Letto) translate with the selected UI language.
+
+**App Layout:**
+- **Top app bar:** hamburger menu icon (opens side menu), app title, search icon, sort icon, view-toggle icon.
+- **Hamburger menu** (side drawer) contains: UI language switch, Import/Export, Google Drive connection/sync.
+- **Main page** has two tabs: **Shelves** and **Books**. The selected tab's view is shown below.
+- Both views share: a path/breadcrumb row, an item count, and a filter icon; each has its own sort and filter options.
+- **Shelves view:** list of shelves, each showing a thumbnail icon, shelf name, book count, and a 3-dot menu (rename/delete/merge actions).
+- **Books view:** books grouped by author surname under section labels, with an A–Z fast-scroll index on the side. Each row shows cover thumbnail, title, author, and status badges (reading status, format).
+- **Add a book:** three methods — search online (Title/ISBN), scan ISBN via camera, or add manually. Reachable via a floating "+" button.
+
+**Book fields** (in this exact order):
+Title, Author, Publisher, Series, Volume, Language, Format, Reading Status, Ownership, Shelf, ISBN
+
+- Each book belongs to **exactly one** shelf.
+- Hidden fields (not shown in UI) store cover image data.
+- Cover image is fetched automatically by ISBN, trying sources in this order: **Open Library → Google Books → Amazon (search by ISBN, then by Title if ISBN fails)**.
+- **Note:** Amazon has no free public search API like Open Library/Google Books — using it requires an Amazon Associates account with the Product Advertising API, or another workaround. Flag this for the build chat when this step is reached.
+- If no image is found from any source, show the placeholder icon.
+
+**Reading Status:** dropdown options are Letto / In lettura / Da leggere only. On **import**, the values "Si", "Sì", "X" (case insensitive) are recognized as aliases for "Letto" — not shown as manual entry options.
+
+**Ownership** options: Posseduto / In prestito / Non posseduto.
+
+**Format** options: Cartaceo / Ebook / Audiolibro.
+
+**Language** options: Italiano / English / Français / Deutsch / Español.
+
+**Stats counters** (top of screen):
+- Total books
+- Read books (Reading Status = Letto, or Si/Sì/X on import)
+- Owned books (Ownership = Posseduto)
+- On loan books (Ownership = In prestito)
+
+**Book list:**
+- Search box (by Title/Author)
+- Sort by Title, Author, or Reading Status
+- Shelf filter chips at top of list
+- Each book card shows badges for reading status, ownership, format, language, shelf
+
+**Book management:**
+- Add, edit, and delete books
+- Add book modal: two tabs (search by Title / search by ISBN), searches Open Library API (then Google Books, then Amazon as fallback per above), shows cover/author/year, clicking a result pre-fills Title, Author, Publisher, ISBN, Language, and cover image if available; all fields remain manually editable after pre-fill
+- ISBN barcode scanning via device camera as an additional way to add a book
+
+**Shelf management:**
+- Add and remove shelves dynamically
+- Rename shelves inline by clicking the name
+- Shelf names are case insensitive
+- Renaming into a duplicate name triggers a confirmation dialog: "Sì, unisci" / "No, modifica nome", offering to merge the two shelves
+
+**Import/Export:**
+- Export to XLSX, columns in this exact order: Titolo, Autore, Editore, Serie, Volume, Lingua, Formato, Stato lettura, Posseduto, Scaffale, ISBN, Copertina (URL)
+- Import from XLSX using either full set of headers below (not mixed):
+
+| Field | Italian | English |
+|---|---|---|
+| Title | Titolo | Title |
+| Author | Autore | Author |
+| Publisher | Editore | Publisher |
+| Series | Serie | Series |
+| Volume | Volume | Volume |
+| Language | Lingua | Language |
+| Format | Formato | Format |
+| Reading Status | Stato lettura | Reading Status |
+| Ownership | Posseduto | Ownership |
+| Shelf | Scaffale | Shelf |
+| ISBN | ISBN | ISBN |
+| Cover Image | Copertina | Cover Image |
+
+- On import: validate columns; show a clear error listing any missing columns; mention any unrecognized columns
+- Cover Image column is optional on import — if present, its URL is used; if absent/empty, the image is fetched via the ISBN fallback chain above
+- If valid, show a success confirmation with book count and any new shelves to be created before importing
+- New shelves found in import are added automatically
+- If an imported book's ISBN already exists in the library, ask the user per duplicate whether to keep the existing entry or update it with the imported data
+
+**UI/UX:**
+- All confirmation dialogs use in-app modals (never browser confirm/alert)
+- No limit on number of books
