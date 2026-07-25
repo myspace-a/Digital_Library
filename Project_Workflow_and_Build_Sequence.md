@@ -24,17 +24,19 @@ This keeps one single up-to-date version with full change history, instead of tw
 1. Basic app shell — PWA files (manifest, icon), installable empty page
 2. Book data model + manual add/view/delete (local storage only, no cloud yet)
 3. All book fields + dropdowns (Reading Status, Ownership, Format, Language)
-4. Language switcher (IT/EN toggle + translate all existing labels/fields)
+4. Language switcher (dropdown with flags + translate all existing labels/fields)
 5. Stats counters
 6. Shelf management (add/remove/rename/merge)
-7. Add-book modal: manual entry tab
-8. Open Library search integration (Title/ISBN tabs)
-9. Cover image fetching by ISBN
-10. Export to XLSX
-11. Import from XLSX + validation
-12. Offline caching (service worker)
-13. Google Drive sync
-14. Android polish / install flow
+7. App layout restructure — top app bar (hamburger, search, sort, view-toggle icons), side drawer menu, Shelves/Books tabs, breadcrumb + item count + filter row, Books view grouped by author with A–Z fast-scroll index, floating "+" button
+8. Add-book modal: manual entry tab
+9. Open Library search integration (Title/ISBN tabs)
+10. ISBN barcode scanning via device camera
+11. Cover image fetching by ISBN
+12. Export to XLSX
+13. Import from XLSX + validation
+14. Offline caching (service worker)
+15. Google Drive sync
+16. Android polish / install flow
 
 ## End-of-feature checklist (every build chat)
 1. Confirm the feature works (test in browser / on phone via GitHub Pages URL).
