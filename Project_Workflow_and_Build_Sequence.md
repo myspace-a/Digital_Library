@@ -27,7 +27,7 @@ This keeps one single up-to-date version with full change history, instead of tw
 4. Language switcher (dropdown with flags + translate all existing labels/fields)
 5. Stats counters
 6. Shelf management (add/remove/rename/merge)
-7. App layout restructure — top app bar (hamburger, search, sort, view-toggle icons), side drawer menu, Shelves/Books tabs, breadcrumb + item count + filter row, Books view grouped by author with A–Z fast-scroll index, floating "+" button,add hamburger-menu option to show/hide the stats counters
+7. App layout restructure — top app bar (hamburger, search, sort, view-toggle icons), side drawer menu (incl. show/hide stats counters toggle), Shelves/Books tabs, breadcrumb + item count + filter row, Books view grouped by author with A–Z fast-scroll index, floating "+" button
 8. Add-book modal: manual entry tab; fix missing edit function for books
 9. Open Library search integration (Title/ISBN tabs)
 10. ISBN barcode scanning via device camera
@@ -43,6 +43,15 @@ This keeps one single up-to-date version with full change history, instead of tw
 2. On github.com: open the repo → **Add file → Create new file** (for new files) or click the file → pencil icon (to edit existing ones) → paste the code.
 3. Scroll down → write a short commit message → **Commit changes**.
 4. Start a new chat for the next feature, telling Claude "here's my current code" (paste/upload from GitHub) instead of re-explaining the whole app.
+
+## Lessons learned along the way
+- **"Add from GitHub" is read-only**: it lets Claude pull in current files, but doesn't auto-commit changes back — still paste results into GitHub's website manually.
+- **Connector can fail intermittently**: retry once; if it fails again, fall back to manually pasting file content rather than burning quota troubleshooting it.
+- **Catch structural issues early**: when something feels architecturally off (e.g. a UI pattern, a missing layout piece), fix it or insert a new step before building further on top of it — cheaper than retrofitting later.
+- **"Add to project" vs. GitHub sync**: the quick chat button has no version history and isn't backed by the actual codebase; GitHub commit + "Sync now" does, at the cost of a couple more clicks. Worth it for docs/files you'll keep revising.
+- **GitHub repo-sync setup for project knowledge is browser/desktop only** (as of now) — not available in the Android app for initial setup; using it once configured may still work on mobile.
+- **Test big structural steps thoroughly**: after a step that touches a lot of the file (e.g. layout restructure), re-check that everything built in *previous* steps still works, not just the new feature.
+- **Watch chat length**: periodically check whether a coach or build chat is getting long, and start fresh once a milestone is reached — history isn't lost as long as key docs are kept current in project knowledge.
 
 ## Quota tips
 - Keep build chats short and single-feature.
