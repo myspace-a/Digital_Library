@@ -7,10 +7,11 @@ Build a personal book cataloging web app (Progressive Web App) that works on And
 
 **App Layout:**
 - **Top app bar:** hamburger menu icon (opens side menu), app title, search icon, sort icon, view-toggle icon.
-- **Hamburger menu** (side drawer) contains: UI language switch, Import/Export, Google Drive connection/sync.
+- **Hamburger menu** (side drawer) contains: UI language switch, Import/Export, Google Drive connection/sync.Add a Show/Hide Stats toggle.
 - **Main page** has two tabs: **Shelves** and **Books**. The selected tab's view is shown below.
 - Both views share: a path/breadcrumb row, an item count, and a filter icon; each has its own sort and filter options.
 - **Shelves view:** list of shelves, each showing a thumbnail icon, shelf name, book count, and a 3-dot menu (rename/delete/merge actions).
+Clicking a shelf opens that shelf's Books view, filtered to just that shelf's books, updating the breadcrumb path (e.g. Home > Shelf name) and item count accordingly.
 - **Books view:** books grouped by author surname under section labels, with an A–Z fast-scroll index on the side. Each row shows cover thumbnail, title, author, and status badges (reading status, format).
 - **Add a book:** three methods — search online (Title/ISBN), scan ISBN via camera, or add manually. Reachable via a floating "+" button.
 
@@ -36,6 +37,7 @@ Title, Author, Publisher, Series, Volume, Language, Format, Reading Status, Owne
 - Read books (Reading Status = Letto, or Si/Sì/X on import)
 - Owned books (Ownership = Posseduto)
 - On loan books (Ownership = In prestito)
+Stats counters section — note that visibility is controlled by this toggle (hidden by default state: visible, unless toggled off).
 
 **Book list:**
 - Search box (by Title/Author)
