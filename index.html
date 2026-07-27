@@ -306,7 +306,9 @@
       padding: 0.5rem 0.75rem;
       margin-bottom: 0.4rem;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      cursor: pointer;
     }
+    .book-row:hover { background: #f9fafb; }
     .book-cover-placeholder {
       width: 32px;
       height: 44px;
@@ -404,6 +406,24 @@
     }
     .add-panel-header button { background: none; border: none; font-size: 1.2rem; cursor: pointer; }
 
+    /* Tabs inside the add-book panel: only "Manual entry" exists for now,
+       Search and Scan tabs will be added here in later steps. */
+    .add-panel-tabs {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 0.9rem;
+    }
+    .add-tab-btn {
+      padding: 0.4rem 0.85rem;
+      border: none;
+      border-radius: 6px;
+      background: #ecf0f1;
+      color: #2c3e50;
+      font-size: 0.85rem;
+      cursor: default;
+    }
+    .add-tab-btn.active { background: #2c3e50; color: white; font-weight: bold; }
+
     #addForm {
       display: flex;
       gap: 0.5rem;
@@ -430,6 +450,8 @@
       flex: 1 1 100%;
     }
     #addForm button:hover { background: #34495e; }
+    #deleteBookBtn { background: #c0392b; }
+    #deleteBookBtn:hover { background: #a93226; }
   </style>
 </head>
 <body>
@@ -532,12 +554,17 @@
   <!-- ============ Floating add button ============ -->
   <button id="fabAdd" data-i18n-title="fabAddTitle">+</button>
 
-  <!-- ============ Add-book panel (wraps the existing manual form) ============ -->
+  <!-- ============ Add/Edit-book panel ============ -->
   <div id="addPanelOverlay" class="modal-overlay" hidden>
     <div class="add-panel">
       <div class="add-panel-header">
-        <span data-i18n="addBookTitle">Aggiungi libro</span>
+        <span id="addPanelTitle" data-i18n="addBookTitle">Aggiungi libro</span>
         <button id="closeAddPanelBtn" data-i18n-title="closeAddPanelTitle">✕</button>
+      </div>
+
+      <!-- Only "Manual entry" exists today; Search and Scan tabs join it in later steps -->
+      <div class="add-panel-tabs">
+        <button type="button" class="add-tab-btn active" data-i18n="addTabManual">Inserimento manuale</button>
       </div>
 
       <form id="addForm">
@@ -575,7 +602,8 @@
           <option value="Non posseduto" data-i18n-option="Non posseduto">Non posseduto</option>
         </select>
 
-        <button type="submit" data-i18n="addBtn">Aggiungi</button>
+        <button type="submit" id="submitBookBtn" data-i18n="addBtn">Aggiungi</button>
+        <button type="button" id="deleteBookBtn" data-i18n="deleteBtn" style="display:none;">Elimina</button>
       </form>
     </div>
   </div>
@@ -603,12 +631,14 @@
 
     let currentTab = 'books';
     let shelfFilter = null; // when set, Books view shows only this shelf's books
+    let editingBookId = null; // when set, the add panel is in "edit" mode for this book
 
     // --- Fixed UI text (buttons, placeholders, messages) ---
     const translations = {
       it: {
         appTitle: '📚 La Mia Biblioteca',
         addBtn: 'Aggiungi',
+        saveBtn: 'Salva modifiche',
         deleteBtn: 'Elimina',
         emptyMsg: 'Nessun libro ancora. Aggiungine uno sopra!',
         phTitle: 'Titolo',
@@ -659,15 +689,20 @@
         itemCountBooksLabel: 'libri',
         itemCountShelvesLabel: 'scaffali',
         addBookTitle: 'Aggiungi libro',
+        editBookTitle: 'Modifica libro',
+        addTabManual: 'Inserimento manuale',
         renameBtn: 'Rinomina',
         shelfMenuLabel: 'Altre azioni',
         drawerShowStats: 'Mostra statistiche',
         drawerHideStats: 'Nascondi statistiche',
-        backToShelves: '← Scaffali'
+        backToShelves: '← Scaffali',
+        confirmDeleteBookTitle: 'Eliminare il libro?',
+        confirmDeleteBookMsg: 'Questa azione non può essere annullata.'
       },
       en: {
         appTitle: '📚 My Library',
         addBtn: 'Add',
+        saveBtn: 'Save changes',
         deleteBtn: 'Delete',
         emptyMsg: 'No books yet. Add one above!',
         phTitle: 'Title',
@@ -718,11 +753,15 @@
         itemCountBooksLabel: 'books',
         itemCountShelvesLabel: 'shelves',
         addBookTitle: 'Add book',
+        editBookTitle: 'Edit book',
+        addTabManual: 'Manual entry',
         renameBtn: 'Rename',
         shelfMenuLabel: 'More actions',
         drawerShowStats: 'Show stats',
         drawerHideStats: 'Hide stats',
-        backToShelves: '← Shelves'
+        backToShelves: '← Shelves',
+        confirmDeleteBookTitle: 'Delete this book?',
+        confirmDeleteBookMsg: 'This action cannot be undone.'
       }
     };
 
@@ -787,6 +826,7 @@
       });
 
       applyStatsVisibility();
+      refreshAddPanelLabels();
       renderAll();
     }
 
@@ -824,6 +864,12 @@
     function addBook(data) {
       const books = getBooks();
       books.push({ id: Date.now().toString(), ...data });
+      saveBooks(books);
+      renderAll();
+    }
+
+    function updateBook(id, data) {
+      const books = getBooks().map(b => (b.id === id ? { ...b, ...data } : b));
       saveBooks(books);
       renderAll();
     }
@@ -882,6 +928,7 @@
         groups[letter].forEach(book => {
           const row = document.createElement('div');
           row.className = 'book-row';
+          row.dataset.id = book.id;
           row.innerHTML = `
             <div class="book-cover-placeholder">📖</div>
             <div class="book-info">
@@ -893,6 +940,7 @@
               </div>
             </div>
           `;
+          row.addEventListener('click', () => openAddPanel(book));
           container.appendChild(row);
         });
       });
@@ -1287,17 +1335,75 @@
     document.getElementById('closeDrawerBtn').addEventListener('click', closeDrawer);
     document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
 
-    // --- Floating add button + add-book panel ---
-    function openAddPanel() {
+    // --- Floating add button + add/edit-book panel ---
+
+    function fillForm(book) {
+      document.getElementById('titleInput').value = book.title || '';
+      document.getElementById('authorInput').value = book.author || '';
+      document.getElementById('publisherInput').value = book.publisher || '';
+      document.getElementById('seriesInput').value = book.series || '';
+      document.getElementById('volumeInput').value = book.volume || '';
+      document.getElementById('isbnInput').value = book.isbn || '';
+      renderShelfOptions();
+      document.getElementById('shelfInput').value = book.shelf || '';
+      document.getElementById('languageInput').value = book.language || 'Italiano';
+      document.getElementById('formatInput').value = book.format || 'Cartaceo';
+      document.getElementById('statusInput').value = book.status || 'Da leggere';
+      document.getElementById('ownershipInput').value = book.ownership || 'Posseduto';
+    }
+
+    function resetForm() {
+      document.getElementById('addForm').reset();
+      renderShelfOptions();
+    }
+
+    // Call with no argument to add a new book, or with a book object to edit it
+    function openAddPanel(book) {
+      const t = translations[getLang()];
+      editingBookId = book ? book.id : null;
+
+      if (book) {
+        fillForm(book);
+      } else {
+        resetForm();
+      }
+      refreshAddPanelLabels();
+
       document.getElementById('addPanelOverlay').hidden = false;
     }
+
     function closeAddPanel() {
       document.getElementById('addPanelOverlay').hidden = true;
+      editingBookId = null;
     }
-    document.getElementById('fabAdd').addEventListener('click', openAddPanel);
+
+    // Keeps the panel's title/buttons correct for add-vs-edit mode,
+    // including right after a language switch while the panel is open.
+    function refreshAddPanelLabels() {
+      const t = translations[getLang()];
+      document.getElementById('addPanelTitle').textContent = editingBookId ? t.editBookTitle : t.addBookTitle;
+      document.getElementById('submitBookBtn').textContent = editingBookId ? t.saveBtn : t.addBtn;
+      document.getElementById('deleteBookBtn').style.display = editingBookId ? 'block' : 'none';
+    }
+
+    document.getElementById('fabAdd').addEventListener('click', () => openAddPanel());
     document.getElementById('closeAddPanelBtn').addEventListener('click', closeAddPanel);
     document.getElementById('addPanelOverlay').addEventListener('click', (e) => {
       if (e.target.id === 'addPanelOverlay') closeAddPanel();
+    });
+
+    document.getElementById('deleteBookBtn').addEventListener('click', () => {
+      if (!editingBookId) return;
+      const t = translations[getLang()];
+      const idToDelete = editingBookId;
+      showModal({
+        title: t.confirmDeleteBookTitle,
+        msg: t.confirmDeleteBookMsg,
+        primaryLabel: t.modalConfirmBtn,
+        secondaryLabel: t.modalCancelBtn,
+        onPrimary: () => { deleteBook(idToDelete); hideModal(); closeAddPanel(); },
+        onSecondary: hideModal
+      });
     });
 
     document.getElementById('addShelfBtn').addEventListener('click', addShelf);
@@ -1321,7 +1427,7 @@
         ownership: document.getElementById('ownershipInput'),
       };
 
-      addBook({
+      const data = {
         title: fields.title.value.trim(),
         author: fields.author.value.trim(),
         publisher: fields.publisher.value.trim(),
@@ -1333,15 +1439,14 @@
         format: fields.format.value,
         status: fields.status.value,
         ownership: fields.ownership.value,
-      });
+      };
 
-      fields.title.value = '';
-      fields.author.value = '';
-      fields.publisher.value = '';
-      fields.series.value = '';
-      fields.volume.value = '';
-      fields.isbn.value = '';
-      fields.shelf.value = '';
+      if (editingBookId) {
+        updateBook(editingBookId, data);
+      } else {
+        addBook(data);
+      }
+
       closeAddPanel();
     });
 
