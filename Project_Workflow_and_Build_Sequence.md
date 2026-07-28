@@ -29,7 +29,7 @@ This keeps one single up-to-date version with full change history, instead of tw
 6. Shelf management (add/remove/rename/merge)
 7. App layout restructure — top app bar (hamburger, search, sort, view-toggle icons), side drawer menu (incl. show/hide stats counters toggle), Shelves/Books tabs, breadcrumb + item count + filter row, Books view grouped by author with A–Z fast-scroll index, floating "+" button
 8. Add-book modal: manual entry tab; fix missing edit function for books
-9. Open Library search integration (Title/ISBN tabs)
+9. Google book and Open Library search integration (Title/ISBN tabs)
 10. ISBN barcode scanning via device camera
 11. Cover image fetching by ISBN
 12. Export to XLSX
