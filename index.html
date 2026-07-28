@@ -406,12 +406,12 @@
     }
     .add-panel-header button { background: none; border: none; font-size: 1.2rem; cursor: pointer; }
 
-    /* Tabs inside the add-book panel: only "Manual entry" exists for now,
-       Search and Scan tabs will be added here in later steps. */
+    /* Tabs inside the add-book panel: Manual entry, Search by Title, Search by ISBN */
     .add-panel-tabs {
       display: flex;
       gap: 0.4rem;
       margin-bottom: 0.9rem;
+      flex-wrap: wrap;
     }
     .add-tab-btn {
       padding: 0.4rem 0.85rem;
@@ -420,9 +420,68 @@
       background: #ecf0f1;
       color: #2c3e50;
       font-size: 0.85rem;
-      cursor: default;
+      cursor: pointer;
     }
     .add-tab-btn.active { background: #2c3e50; color: white; font-weight: bold; }
+
+    /* ---------- Search tabs (Open Library) ---------- */
+    .add-search-panel { margin-bottom: 0.75rem; }
+    .search-row { display: flex; gap: 0.5rem; margin-bottom: 0.6rem; }
+    .search-row input {
+      flex: 1;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+    .search-row button {
+      padding: 0.5rem 0.9rem;
+      border: none;
+      border-radius: 6px;
+      background: #2c3e50;
+      color: white;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .search-row button:hover { background: #34495e; }
+    .search-results {
+      max-height: 300px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .search-result-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: #f9fafb;
+      border-radius: 6px;
+      padding: 0.5rem 0.7rem;
+      cursor: pointer;
+    }
+    .search-result-item:hover { background: #ecf0f1; }
+    .search-result-cover {
+      width: 32px;
+      height: 44px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ecf0f1;
+      border-radius: 4px;
+      overflow: hidden;
+      font-size: 1.1rem;
+    }
+    .search-result-cover img { width: 100%; height: 100%; object-fit: cover; }
+    .search-result-info strong { display: block; font-size: 0.9rem; }
+    .search-result-info .sub { font-size: 0.78rem; color: #666; }
+    .search-status, .search-no-results {
+      color: #888;
+      font-size: 0.85rem;
+      text-align: center;
+      padding: 0.5rem 0;
+    }
 
     #addForm {
       display: flex;
@@ -562,49 +621,72 @@
         <button id="closeAddPanelBtn" data-i18n-title="closeAddPanelTitle">✕</button>
       </div>
 
-      <!-- Only "Manual entry" exists today; Search and Scan tabs join it in later steps -->
       <div class="add-panel-tabs">
-        <button type="button" class="add-tab-btn active" data-i18n="addTabManual">Inserimento manuale</button>
+        <button type="button" class="add-tab-btn active" data-tab="manual" data-i18n="addTabManual">Inserimento manuale</button>
+        <button type="button" id="searchTitleTabBtn" class="add-tab-btn" data-tab="searchTitle" data-i18n="addTabSearchTitle">Cerca per titolo</button>
+        <button type="button" id="searchIsbnTabBtn" class="add-tab-btn" data-tab="searchIsbn" data-i18n="addTabSearchIsbn">Cerca per ISBN</button>
       </div>
 
-      <form id="addForm">
-        <input type="text" id="titleInput" data-i18n-placeholder="phTitle" placeholder="Titolo" required>
-        <input type="text" id="authorInput" data-i18n-placeholder="phAuthor" placeholder="Autore" required>
-        <input type="text" id="publisherInput" data-i18n-placeholder="phPublisher" placeholder="Editore">
-        <input type="text" id="seriesInput" data-i18n-placeholder="phSeries" placeholder="Serie">
-        <input type="text" id="volumeInput" data-i18n-placeholder="phVolume" placeholder="Volume">
-        <input type="text" id="isbnInput" data-i18n-placeholder="phIsbn" placeholder="ISBN">
-        <select id="shelfInput"></select>
+      <!-- Search by Title -->
+      <div id="searchTitlePanel" class="add-search-panel" hidden>
+        <div class="search-row">
+          <input type="text" id="searchTitleInput" data-i18n-placeholder="searchTitlePh" placeholder="Titolo del libro">
+          <button type="button" id="searchTitleBtn" data-i18n="searchBtn">Cerca</button>
+        </div>
+        <div id="searchTitleResults" class="search-results"></div>
+      </div>
 
-        <select id="languageInput">
-          <option value="Italiano" data-i18n-option="Italiano">Italiano</option>
-          <option value="English" data-i18n-option="English">English</option>
-          <option value="Français" data-i18n-option="Français">Français</option>
-          <option value="Deutsch" data-i18n-option="Deutsch">Deutsch</option>
-          <option value="Español" data-i18n-option="Español">Español</option>
-        </select>
+      <!-- Search by ISBN -->
+      <div id="searchIsbnPanel" class="add-search-panel" hidden>
+        <div class="search-row">
+          <input type="text" id="searchIsbnInput" data-i18n-placeholder="searchIsbnPh" placeholder="ISBN">
+          <button type="button" id="searchIsbnBtn" data-i18n="searchBtn">Cerca</button>
+        </div>
+        <div id="searchIsbnResults" class="search-results"></div>
+      </div>
 
-        <select id="formatInput">
-          <option value="Cartaceo" data-i18n-option="Cartaceo">Cartaceo</option>
-          <option value="Ebook" data-i18n-option="Ebook">Ebook</option>
-          <option value="Audiolibro" data-i18n-option="Audiolibro">Audiolibro</option>
-        </select>
+      <!-- Manual entry (unchanged from step 8) -->
+      <div id="manualTabPanel">
+        <form id="addForm">
+          <input type="text" id="titleInput" data-i18n-placeholder="phTitle" placeholder="Titolo" required>
+          <input type="text" id="authorInput" data-i18n-placeholder="phAuthor" placeholder="Autore" required>
+          <input type="text" id="publisherInput" data-i18n-placeholder="phPublisher" placeholder="Editore">
+          <input type="text" id="seriesInput" data-i18n-placeholder="phSeries" placeholder="Serie">
+          <input type="text" id="volumeInput" data-i18n-placeholder="phVolume" placeholder="Volume">
+          <input type="text" id="isbnInput" data-i18n-placeholder="phIsbn" placeholder="ISBN">
+          <input type="hidden" id="coverInput" value="">
+          <select id="shelfInput"></select>
 
-        <select id="statusInput">
-          <option value="Da leggere" data-i18n-option="Da leggere">Da leggere</option>
-          <option value="In lettura" data-i18n-option="In lettura">In lettura</option>
-          <option value="Letto" data-i18n-option="Letto">Letto</option>
-        </select>
+          <select id="languageInput">
+            <option value="Italiano" data-i18n-option="Italiano">Italiano</option>
+            <option value="English" data-i18n-option="English">English</option>
+            <option value="Français" data-i18n-option="Français">Français</option>
+            <option value="Deutsch" data-i18n-option="Deutsch">Deutsch</option>
+            <option value="Español" data-i18n-option="Español">Español</option>
+          </select>
 
-        <select id="ownershipInput">
-          <option value="Posseduto" data-i18n-option="Posseduto">Posseduto</option>
-          <option value="In prestito" data-i18n-option="In prestito">In prestito</option>
-          <option value="Non posseduto" data-i18n-option="Non posseduto">Non posseduto</option>
-        </select>
+          <select id="formatInput">
+            <option value="Cartaceo" data-i18n-option="Cartaceo">Cartaceo</option>
+            <option value="Ebook" data-i18n-option="Ebook">Ebook</option>
+            <option value="Audiolibro" data-i18n-option="Audiolibro">Audiolibro</option>
+          </select>
 
-        <button type="submit" id="submitBookBtn" data-i18n="addBtn">Aggiungi</button>
-        <button type="button" id="deleteBookBtn" data-i18n="deleteBtn" style="display:none;">Elimina</button>
-      </form>
+          <select id="statusInput">
+            <option value="Da leggere" data-i18n-option="Da leggere">Da leggere</option>
+            <option value="In lettura" data-i18n-option="In lettura">In lettura</option>
+            <option value="Letto" data-i18n-option="Letto">Letto</option>
+          </select>
+
+          <select id="ownershipInput">
+            <option value="Posseduto" data-i18n-option="Posseduto">Posseduto</option>
+            <option value="In prestito" data-i18n-option="In prestito">In prestito</option>
+            <option value="Non posseduto" data-i18n-option="Non posseduto">Non posseduto</option>
+          </select>
+
+          <button type="submit" id="submitBookBtn" data-i18n="addBtn">Aggiungi</button>
+          <button type="button" id="deleteBookBtn" data-i18n="deleteBtn" style="display:none;">Elimina</button>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -628,6 +710,11 @@
     const STORAGE_KEY = 'biblioteca_books';
     const LANG_KEY = 'biblioteca_lang';
     const SHELVES_KEY = 'biblioteca_shelves';
+
+    // Without a key, Google Books shares one small global quota across every app using it
+    // this way, which fails unpredictably. A free key restricted to this site fixes that.
+    // Paste your key between the quotes below (see setup steps from Claude).
+    const GOOGLE_BOOKS_API_KEY = '';
 
     let currentTab = 'books';
     let shelfFilter = null; // when set, Books view shows only this shelf's books
@@ -691,6 +778,14 @@
         addBookTitle: 'Aggiungi libro',
         editBookTitle: 'Modifica libro',
         addTabManual: 'Inserimento manuale',
+        addTabSearchTitle: 'Cerca per titolo',
+        addTabSearchIsbn: 'Cerca per ISBN',
+        searchTitlePh: 'Titolo del libro',
+        searchIsbnPh: 'ISBN',
+        searchBtn: 'Cerca',
+        searchLoading: 'Ricerca in corso...',
+        searchNoResults: 'Nessun risultato trovato.',
+        searchError: 'Ricerca non riuscita. Riprova.',
         renameBtn: 'Rinomina',
         shelfMenuLabel: 'Altre azioni',
         drawerShowStats: 'Mostra statistiche',
@@ -755,6 +850,14 @@
         addBookTitle: 'Add book',
         editBookTitle: 'Edit book',
         addTabManual: 'Manual entry',
+        addTabSearchTitle: 'Search by title',
+        addTabSearchIsbn: 'Search by ISBN',
+        searchTitlePh: 'Book title',
+        searchIsbnPh: 'ISBN',
+        searchBtn: 'Search',
+        searchLoading: 'Searching...',
+        searchNoResults: 'No results found.',
+        searchError: 'Search failed. Please try again.',
         renameBtn: 'Rename',
         shelfMenuLabel: 'More actions',
         drawerShowStats: 'Show stats',
@@ -781,6 +884,16 @@
         'Italiano': 'Italian', 'English': 'English', 'Français': 'French', 'Deutsch': 'German', 'Español': 'Spanish',
         'Senza scaffale': 'No shelf'
       }
+    };
+
+    // --- Maps language codes from both search sources to the app's Language dropdown values ---
+    // Google Books uses 2-letter codes (it, en, fr, de, es); Open Library uses 3-letter codes.
+    const LANG_CODE_MAP = {
+      it: 'Italiano', ita: 'Italiano',
+      en: 'English', eng: 'English',
+      fr: 'Français', fre: 'Français', fra: 'Français',
+      de: 'Deutsch', ger: 'Deutsch', deu: 'Deutsch',
+      es: 'Español', spa: 'Español'
     };
 
     function getLang() {
@@ -1344,6 +1457,7 @@
       document.getElementById('seriesInput').value = book.series || '';
       document.getElementById('volumeInput').value = book.volume || '';
       document.getElementById('isbnInput').value = book.isbn || '';
+      document.getElementById('coverInput').value = book.cover || '';
       renderShelfOptions();
       document.getElementById('shelfInput').value = book.shelf || '';
       document.getElementById('languageInput').value = book.language || 'Italiano';
@@ -1354,6 +1468,7 @@
 
     function resetForm() {
       document.getElementById('addForm').reset();
+      document.getElementById('coverInput').value = '';
       renderShelfOptions();
     }
 
@@ -1368,6 +1483,15 @@
         resetForm();
       }
       refreshAddPanelLabels();
+
+      // Search tabs only make sense when adding a brand-new book, not while editing one.
+      document.getElementById('searchTitleTabBtn').style.display = editingBookId ? 'none' : '';
+      document.getElementById('searchIsbnTabBtn').style.display = editingBookId ? 'none' : '';
+      document.getElementById('searchTitleInput').value = '';
+      document.getElementById('searchTitleResults').innerHTML = '';
+      document.getElementById('searchIsbnInput').value = '';
+      document.getElementById('searchIsbnResults').innerHTML = '';
+      switchAddTab('manual');
 
       document.getElementById('addPanelOverlay').hidden = false;
     }
@@ -1420,6 +1544,7 @@
         series: document.getElementById('seriesInput'),
         volume: document.getElementById('volumeInput'),
         isbn: document.getElementById('isbnInput'),
+        cover: document.getElementById('coverInput'),
         shelf: document.getElementById('shelfInput'),
         language: document.getElementById('languageInput'),
         format: document.getElementById('formatInput'),
@@ -1434,6 +1559,7 @@
         series: fields.series.value.trim(),
         volume: fields.volume.value.trim(),
         isbn: fields.isbn.value.trim(),
+        cover: fields.cover.value.trim(),
         shelf: fields.shelf.value.trim(),
         language: fields.language.value,
         format: fields.format.value,
@@ -1448,6 +1574,187 @@
       }
 
       closeAddPanel();
+    });
+
+    // --- Add-panel tab switching (Manual / Search by Title / Search by ISBN) ---
+    function switchAddTab(tab) {
+      document.querySelectorAll('.add-tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tab);
+      });
+      document.getElementById('manualTabPanel').hidden = tab !== 'manual';
+      document.getElementById('searchTitlePanel').hidden = tab !== 'searchTitle';
+      document.getElementById('searchIsbnPanel').hidden = tab !== 'searchIsbn';
+    }
+    document.querySelectorAll('.add-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchAddTab(btn.dataset.tab));
+    });
+
+    // --- Book search: Google Books first, Open Library as fallback (Step 9) ---
+    // Google Books has a much larger catalog; Open Library fills in anything it misses.
+    // Both sources are normalized into the same shape so the rest of the code
+    // doesn't need to know which one a result came from.
+
+    async function fetchGoogleBooks(url) {
+      const fullUrl = GOOGLE_BOOKS_API_KEY
+        ? `${url}&key=${encodeURIComponent(GOOGLE_BOOKS_API_KEY)}`
+        : url;
+      const res = await fetch(fullUrl);
+      if (!res.ok) throw new Error('Google Books request failed');
+      const data = await res.json();
+      return data.items || [];
+    }
+
+    async function fetchOpenLibrary(url) {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Open Library request failed');
+      const data = await res.json();
+      return data.docs || [];
+    }
+
+    function normalizeGoogleBooksItem(item) {
+      const vi = item.volumeInfo || {};
+      const ids = vi.industryIdentifiers || [];
+      const isbn13 = ids.find(id => id.type === 'ISBN_13');
+      const isbn10 = ids.find(id => id.type === 'ISBN_10');
+      const isbn = (isbn13 || isbn10 || {}).identifier || '';
+      const images = vi.imageLinks || {};
+      return {
+        title: vi.title || '',
+        author: (vi.authors && vi.authors[0]) || '',
+        publisher: vi.publisher || '',
+        isbn: isbn,
+        language: vi.language || '',
+        year: vi.publishedDate ? vi.publishedDate.slice(0, 4) : '',
+        coverThumb: images.smallThumbnail || images.thumbnail || '',
+        coverFull: images.thumbnail || images.smallThumbnail || ''
+      };
+    }
+
+    function normalizeOpenLibraryDoc(doc) {
+      return {
+        title: doc.title || '',
+        author: (doc.author_name && doc.author_name[0]) || '',
+        publisher: (doc.publisher && doc.publisher[0]) || '',
+        isbn: (doc.isbn && doc.isbn[0]) || '',
+        language: (doc.language && doc.language[0]) || '',
+        year: doc.first_publish_year || '',
+        coverThumb: doc.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-S.jpg` : '',
+        coverFull: doc.cover_i ? `https://covers.openlibrary.org/b/id/${doc.cover_i}-M.jpg` : ''
+      };
+    }
+
+    async function fetchGoogleBooksByTitle(query) {
+      const items = await fetchGoogleBooks(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(query)}&maxResults=10`);
+      return items.map(normalizeGoogleBooksItem);
+    }
+
+    async function fetchGoogleBooksByIsbn(query) {
+      const items = await fetchGoogleBooks(`https://www.googleapis.com/books/v1/volumes?q=isbn:${encodeURIComponent(query)}&maxResults=10`);
+      return items.map(normalizeGoogleBooksItem);
+    }
+
+    async function fetchOpenLibraryByTitle(query) {
+      const docs = await fetchOpenLibrary(`https://openlibrary.org/search.json?title=${encodeURIComponent(query)}&limit=10`);
+      return docs.map(normalizeOpenLibraryDoc);
+    }
+
+    async function fetchOpenLibraryByIsbn(query) {
+      const docs = await fetchOpenLibrary(`https://openlibrary.org/search.json?isbn=${encodeURIComponent(query)}&limit=10`);
+      return docs.map(normalizeOpenLibraryDoc);
+    }
+
+    function renderSearchResults(container, results) {
+      const t = translations[getLang()];
+      container.innerHTML = '';
+
+      if (!results.length) {
+        const p = document.createElement('p');
+        p.className = 'search-no-results';
+        p.textContent = t.searchNoResults;
+        container.appendChild(p);
+        return;
+      }
+
+      results.forEach(r => {
+        const item = document.createElement('div');
+        item.className = 'search-result-item';
+        item.innerHTML = `
+          <div class="search-result-cover">${r.coverThumb ? `<img src="${r.coverThumb}" alt="">` : '📖'}</div>
+          <div class="search-result-info">
+            <strong>${escapeHtml(r.title)}</strong>
+            <div class="sub">${escapeHtml(r.author)}${r.year ? ' · ' + escapeHtml(String(r.year)) : ''}</div>
+          </div>
+        `;
+        item.addEventListener('click', () => selectSearchResult(r));
+        container.appendChild(item);
+      });
+    }
+
+    // Pre-fills only Title, Author, Publisher, ISBN, Language and cover image.
+    // Series, Volume, Shelf, Format, Reading Status and Ownership are left untouched
+    // so the person's current selections in the form aren't overwritten.
+    function selectSearchResult(r) {
+      document.getElementById('titleInput').value = r.title || '';
+      document.getElementById('authorInput').value = r.author || '';
+      document.getElementById('publisherInput').value = r.publisher || '';
+      document.getElementById('isbnInput').value = r.isbn || '';
+
+      const mappedLang = LANG_CODE_MAP[r.language];
+      if (mappedLang) {
+        document.getElementById('languageInput').value = mappedLang;
+      }
+
+      document.getElementById('coverInput').value = r.coverFull || '';
+
+      switchAddTab('manual');
+    }
+
+    // Tries Google Books first; if it returns nothing (or fails), falls back to Open Library.
+    async function searchWithFallback(googleFn, openLibraryFn, query) {
+      try {
+        const googleResults = await googleFn(query);
+        if (googleResults.length) return googleResults;
+      } catch (err) {
+        // Google Books failed outright (e.g. network issue) — fall through to Open Library
+      }
+      return openLibraryFn(query);
+    }
+
+    async function runTitleSearch() {
+      const query = document.getElementById('searchTitleInput').value.trim();
+      const resultsEl = document.getElementById('searchTitleResults');
+      if (!query) return;
+      const t = translations[getLang()];
+      resultsEl.innerHTML = `<p class="search-status">${escapeHtml(t.searchLoading)}</p>`;
+      try {
+        const results = await searchWithFallback(fetchGoogleBooksByTitle, fetchOpenLibraryByTitle, query);
+        renderSearchResults(resultsEl, results);
+      } catch (err) {
+        resultsEl.innerHTML = `<p class="search-status">${escapeHtml(t.searchError)}</p>`;
+      }
+    }
+
+    async function runIsbnSearch() {
+      const query = document.getElementById('searchIsbnInput').value.trim();
+      const resultsEl = document.getElementById('searchIsbnResults');
+      if (!query) return;
+      const t = translations[getLang()];
+      resultsEl.innerHTML = `<p class="search-status">${escapeHtml(t.searchLoading)}</p>`;
+      try {
+        const results = await searchWithFallback(fetchGoogleBooksByIsbn, fetchOpenLibraryByIsbn, query);
+        renderSearchResults(resultsEl, results);
+      } catch (err) {
+        resultsEl.innerHTML = `<p class="search-status">${escapeHtml(t.searchError)}</p>`;
+      }
+    }
+
+    document.getElementById('searchTitleBtn').addEventListener('click', runTitleSearch);
+    document.getElementById('searchTitleInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); runTitleSearch(); }
+    });
+    document.getElementById('searchIsbnBtn').addEventListener('click', runIsbnSearch);
+    document.getElementById('searchIsbnInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); runIsbnSearch(); }
     });
 
     // --- Language dropdown wiring ---
