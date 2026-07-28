@@ -17,8 +17,6 @@
       color: #2c3e50;
     }
     h1 { margin: 0; }
-
-    /* ---------- Top App Bar ---------- */
     #topAppBar {
       position: sticky;
       top: 0;
@@ -41,10 +39,7 @@
     }
     #appBarTitle { flex: 1; font-size: 1.1rem; text-align: left; }
     .topbar-icons { display: flex; gap: 0.3rem; }
-
     .page-content { padding: 0 1rem 5rem; }
-
-    /* ---------- Side Drawer ---------- */
     .drawer-overlay {
       position: fixed;
       inset: 0;
@@ -89,8 +84,6 @@
       cursor: pointer;
     }
     .drawer-item:hover { background: #f5f6fa; }
-
-    /* ---------- Language dropdown (now lives in the drawer) ---------- */
     .lang-dropdown { position: relative; display: inline-block; }
     #langToggle {
       padding: 0.4rem 0.9rem;
@@ -132,8 +125,6 @@
     }
     .lang-option:hover { background: #ecf0f1; }
     .lang-option.active { font-weight: bold; background: #f5f6fa; }
-
-    /* ---------- Stats bar ---------- */
     #statsBar {
       display: flex;
       justify-content: center;
@@ -151,8 +142,6 @@
     }
     .stat-box .stat-number { display: block; font-size: 1.4rem; font-weight: bold; }
     .stat-box .stat-label { font-size: 0.75rem; color: #666; }
-
-    /* ---------- Tabs ---------- */
     #mainTabs {
       display: flex;
       max-width: 600px;
@@ -170,8 +159,6 @@
       border-radius: 6px 6px 0 0;
     }
     .tab-btn.active { background: white; font-weight: bold; box-shadow: 0 -2px 0 #2c3e50 inset; }
-
-    /* ---------- Shared path row ---------- */
     #pathRow {
       display: flex;
       align-items: center;
@@ -186,11 +173,8 @@
     }
     #breadcrumb { flex: 1; }
     #filterBtn { background: none; border: none; font-size: 1.05rem; cursor: pointer; color: #2c3e50; }
-
     .tab-view { max-width: 600px; margin: 0 auto; padding-top: 0.75rem; }
     .tab-view[hidden] { display: none; }
-
-    /* ---------- Shelves view ---------- */
     #shelfAddRow { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
     #newShelfInput {
       flex: 1;
@@ -266,8 +250,6 @@
     }
     .shelf-menu button:hover { background: #f5f6fa; }
     #noShelvesMsg { color: #888; font-size: 0.9rem; }
-
-    /* ---------- Books view ---------- */
     #booksContent { display: flex; gap: 0.4rem; align-items: flex-start; }
     #bookGroups { flex: 1; min-width: 0; }
     #azIndex {
@@ -332,8 +314,6 @@
       font-size: 0.75rem;
     }
     #emptyMsg { text-align: center; color: #888; margin-top: 2rem; }
-
-    /* ---------- Floating add button ---------- */
     #fabAdd {
       position: fixed;
       right: 1.25rem;
@@ -351,8 +331,6 @@
       line-height: 1;
     }
     #fabAdd:hover { background: #34495e; }
-
-    /* ---------- Modals (confirm dialog + add-book panel) ---------- */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -386,7 +364,6 @@
     #modalBtnSecondary:hover { background: #dfe4e6; }
     #modalBtnPrimary { background: #2c3e50; color: white; }
     #modalBtnPrimary:hover { background: #34495e; }
-
     .add-panel {
       background: white;
       border-radius: 8px;
@@ -405,8 +382,6 @@
       margin-bottom: 0.75rem;
     }
     .add-panel-header button { background: none; border: none; font-size: 1.2rem; cursor: pointer; }
-
-    /* Tabs inside the add-book panel: Manual entry, Search by Title, Search by ISBN */
     .add-panel-tabs {
       display: flex;
       gap: 0.4rem;
@@ -423,8 +398,6 @@
       cursor: pointer;
     }
     .add-tab-btn.active { background: #2c3e50; color: white; font-weight: bold; }
-
-    /* ---------- Search tabs (Open Library) ---------- */
     .add-search-panel { margin-bottom: 0.75rem; }
     .search-row { display: flex; gap: 0.5rem; margin-bottom: 0.6rem; }
     .search-row input {
@@ -482,7 +455,26 @@
       text-align: center;
       padding: 0.5rem 0;
     }
-
+    #scanVideoWrap { display: none; }
+    #scanVideo {
+      width: 100%;
+      border-radius: 6px;
+      background: #000;
+      display: block;
+    }
+    #scanStartBtn, #scanStopBtn {
+      width: 100%;
+      padding: 0.6rem;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    #scanStartBtn { background: #2c3e50; }
+    #scanStartBtn:hover { background: #34495e; }
+    #scanStopBtn { background: #c0392b; margin-top: 0.5rem; }
+    #scanStopBtn:hover { background: #a93226; }
     #addForm {
       display: flex;
       gap: 0.5rem;
@@ -515,7 +507,6 @@
 </head>
 <body>
 
-  <!-- ============ Top App Bar ============ -->
   <header id="topAppBar">
     <button id="hamburgerBtn" data-i18n-title="hamburgerTitle" aria-label="Menu">☰</button>
     <h1 id="appBarTitle" data-i18n="appTitle">📚 La Mia Biblioteca</h1>
@@ -526,7 +517,6 @@
     </div>
   </header>
 
-  <!-- ============ Side Drawer ============ -->
   <div id="drawerOverlay" class="drawer-overlay" hidden></div>
   <nav id="sideDrawer" class="side-drawer" hidden>
     <div class="drawer-header">
@@ -556,7 +546,6 @@
 
   <div class="page-content">
 
-    <!-- ============ Stats ============ -->
     <div id="statsBar">
       <div class="stat-box">
         <span class="stat-number" id="statTotal">0</span>
@@ -576,20 +565,17 @@
       </div>
     </div>
 
-    <!-- ============ Tabs ============ -->
     <div id="mainTabs">
       <button class="tab-btn" data-tab="shelves" data-i18n="tabShelves">Scaffali</button>
       <button class="tab-btn active" data-tab="books" data-i18n="tabBooks">Libri</button>
     </div>
 
-    <!-- ============ Shared path row ============ -->
     <div id="pathRow">
       <span id="breadcrumb"></span>
       <span id="itemCount"></span>
       <button id="filterBtn" data-i18n-title="filterTitle">▽</button>
     </div>
 
-    <!-- ============ Shelves tab ============ -->
     <section id="shelvesView" class="tab-view" hidden>
       <div id="shelfAddRow">
         <input type="text" id="newShelfInput" data-i18n-placeholder="newShelfPh" placeholder="Nuovo scaffale">
@@ -599,7 +585,6 @@
       <p id="noShelvesMsg" style="display:none;" data-i18n="noShelvesMsg">Nessuno scaffale creato.</p>
     </section>
 
-    <!-- ============ Books tab ============ -->
     <section id="booksView" class="tab-view">
       <div id="booksContent">
         <div id="bookGroups"></div>
@@ -610,10 +595,8 @@
 
   </div>
 
-  <!-- ============ Floating add button ============ -->
   <button id="fabAdd" data-i18n-title="fabAddTitle">+</button>
 
-  <!-- ============ Add/Edit-book panel ============ -->
   <div id="addPanelOverlay" class="modal-overlay" hidden>
     <div class="add-panel">
       <div class="add-panel-header">
@@ -625,9 +608,9 @@
         <button type="button" class="add-tab-btn active" data-tab="manual" data-i18n="addTabManual">Inserimento manuale</button>
         <button type="button" id="searchTitleTabBtn" class="add-tab-btn" data-tab="searchTitle" data-i18n="addTabSearchTitle">Cerca per titolo</button>
         <button type="button" id="searchIsbnTabBtn" class="add-tab-btn" data-tab="searchIsbn" data-i18n="addTabSearchIsbn">Cerca per ISBN</button>
+        <button type="button" id="scanIsbnTabBtn" class="add-tab-btn" data-tab="scanIsbn" data-i18n="addTabScan">Scansiona ISBN</button>
       </div>
 
-      <!-- Search by Title -->
       <div id="searchTitlePanel" class="add-search-panel" hidden>
         <div class="search-row">
           <input type="text" id="searchTitleInput" data-i18n-placeholder="searchTitlePh" placeholder="Titolo del libro">
@@ -636,7 +619,6 @@
         <div id="searchTitleResults" class="search-results"></div>
       </div>
 
-      <!-- Search by ISBN -->
       <div id="searchIsbnPanel" class="add-search-panel" hidden>
         <div class="search-row">
           <input type="text" id="searchIsbnInput" data-i18n-placeholder="searchIsbnPh" placeholder="ISBN">
@@ -645,7 +627,15 @@
         <div id="searchIsbnResults" class="search-results"></div>
       </div>
 
-      <!-- Manual entry (unchanged from step 8) -->
+      <div id="scanIsbnPanel" class="add-search-panel" hidden>
+        <div id="scanVideoWrap">
+          <video id="scanVideo" playsinline muted></video>
+          <button type="button" id="scanStopBtn" data-i18n="scanStopBtn">Ferma scansione</button>
+        </div>
+        <button type="button" id="scanStartBtn" data-i18n="scanStartBtn">Avvia scansione</button>
+        <p id="scanStatus" class="search-status" style="display:none;"></p>
+      </div>
+
       <div id="manualTabPanel">
         <form id="addForm">
           <input type="text" id="titleInput" data-i18n-placeholder="phTitle" placeholder="Titolo" required>
@@ -690,7 +680,6 @@
     </div>
   </div>
 
-  <!-- ============ Reusable confirm modal ============ -->
   <div id="modalOverlay" class="modal-overlay" hidden>
     <div class="modal-box">
       <h3 id="modalTitle"></h3>
@@ -711,16 +700,12 @@
     const LANG_KEY = 'biblioteca_lang';
     const SHELVES_KEY = 'biblioteca_shelves';
 
-    // Without a key, Google Books shares one small global quota across every app using it
-    // this way, which fails unpredictably. A free key restricted to this site fixes that.
-    // Paste your key between the quotes below (see setup steps from Claude).
     const GOOGLE_BOOKS_API_KEY = 'AIzaSyCO3JWYCVnCgdqjp24tlCqb_sdqaXQeXS4';
 
     let currentTab = 'books';
-    let shelfFilter = null; // when set, Books view shows only this shelf's books
-    let editingBookId = null; // when set, the add panel is in "edit" mode for this book
+    let shelfFilter = null;
+    let editingBookId = null;
 
-    // --- Fixed UI text (buttons, placeholders, messages) ---
     const translations = {
       it: {
         appTitle: '📚 La Mia Biblioteca',
@@ -780,12 +765,18 @@
         addTabManual: 'Inserimento manuale',
         addTabSearchTitle: 'Cerca per titolo',
         addTabSearchIsbn: 'Cerca per ISBN',
+        addTabScan: 'Scansiona ISBN',
         searchTitlePh: 'Titolo del libro',
         searchIsbnPh: 'ISBN',
         searchBtn: 'Cerca',
         searchLoading: 'Ricerca in corso...',
         searchNoResults: 'Nessun risultato trovato.',
         searchError: 'Ricerca non riuscita. Riprova.',
+        scanStartBtn: 'Avvia scansione',
+        scanStopBtn: 'Ferma scansione',
+        scanScanning: 'Inquadra il codice a barre ISBN...',
+        scanNotSupported: 'La scansione non è supportata su questo dispositivo o browser. Usa la ricerca per ISBN.',
+        scanCameraError: 'Impossibile accedere alla fotocamera. Controlla i permessi del browser.',
         renameBtn: 'Rinomina',
         shelfMenuLabel: 'Altre azioni',
         drawerShowStats: 'Mostra statistiche',
@@ -852,12 +843,18 @@
         addTabManual: 'Manual entry',
         addTabSearchTitle: 'Search by title',
         addTabSearchIsbn: 'Search by ISBN',
+        addTabScan: 'Scan ISBN',
         searchTitlePh: 'Book title',
         searchIsbnPh: 'ISBN',
         searchBtn: 'Search',
         searchLoading: 'Searching...',
         searchNoResults: 'No results found.',
         searchError: 'Search failed. Please try again.',
+        scanStartBtn: 'Start scanning',
+        scanStopBtn: 'Stop scanning',
+        scanScanning: 'Point the camera at the ISBN barcode...',
+        scanNotSupported: 'Scanning is not supported on this device or browser. Please use ISBN search instead.',
+        scanCameraError: 'Could not access the camera. Please check browser permissions.',
         renameBtn: 'Rename',
         shelfMenuLabel: 'More actions',
         drawerShowStats: 'Show stats',
@@ -868,7 +865,6 @@
       }
     };
 
-    // --- Values stored in books stay in Italian; this only changes what's DISPLAYED ---
     const valueTranslations = {
       it: {
         'Cartaceo': 'Cartaceo', 'Ebook': 'Ebook', 'Audiolibro': 'Audiolibro',
@@ -886,8 +882,6 @@
       }
     };
 
-    // --- Maps language codes from both search sources to the app's Language dropdown values ---
-    // Google Books uses 2-letter codes (it, en, fr, de, es); Open Library uses 3-letter codes.
     const LANG_CODE_MAP = {
       it: 'Italiano', ita: 'Italiano',
       en: 'English', eng: 'English',
@@ -966,7 +960,6 @@
       document.getElementById('statOnLoan').textContent = books.filter(b => b.ownership === 'In prestito').length;
     }
 
-    // --- One place that refreshes every part of the UI that depends on data ---
     function renderAll() {
       updateStats();
       renderShelvesView();
@@ -993,7 +986,6 @@
       renderAll();
     }
 
-    // --- Books view: grouped by author surname, with A-Z fast-scroll index ---
     function getSurname(author) {
       const parts = (author || '').trim().split(/\s+/);
       return parts.length && parts[0] !== '' ? parts[parts.length - 1] : '#';
@@ -1074,8 +1066,6 @@
       });
     }
 
-    // --- Shelf management ---
-
     function getShelves() {
       const raw = localStorage.getItem(SHELVES_KEY);
       return raw ? JSON.parse(raw) : [];
@@ -1085,8 +1075,6 @@
       localStorage.setItem(SHELVES_KEY, JSON.stringify(shelves));
     }
 
-    // First time this feature runs, build the shelf list from any shelf
-    // names already typed into existing books, so nothing gets lost.
     function initShelvesFromBooks() {
       if (localStorage.getItem(SHELVES_KEY) !== null) return;
       const names = [];
@@ -1169,7 +1157,6 @@
       document.querySelectorAll('.shelf-menu').forEach(m => m.hidden = true);
     }
 
-    // Keeps the "add book" form's Shelf dropdown in sync with the managed shelf list
     function renderShelfOptions() {
       const select = document.getElementById('shelfInput');
       if (!select) return;
@@ -1320,8 +1307,6 @@
       renderAll();
     }
 
-    // --- Reusable in-app confirmation modal (replaces browser confirm/alert) ---
-
     function showModal({ title, msg, primaryLabel, secondaryLabel, onPrimary, onSecondary }) {
       document.getElementById('modalTitle').textContent = title;
       document.getElementById('modalMsg').textContent = msg;
@@ -1344,8 +1329,6 @@
     function hideModal() {
       document.getElementById('modalOverlay').hidden = true;
     }
-
-    // --- Tabs + shared path row ---
 
     function switchTab(tab) {
       currentTab = tab;
@@ -1398,7 +1381,6 @@
       renderBooksView();
     }
 
-    // --- Placeholder "coming soon" for features arriving in later steps ---
     function showComingSoon() {
       const t = translations[getLang()];
       showModal({
@@ -1415,7 +1397,6 @@
     document.getElementById('drawerImportExport').addEventListener('click', showComingSoon);
     document.getElementById('drawerDrive').addEventListener('click', showComingSoon);
 
-    // --- Show/hide stats bar (preference saved in localStorage) ---
     const STATS_VISIBLE_KEY = 'biblioteca_stats_visible';
 
     function getStatsVisible() {
@@ -1435,7 +1416,6 @@
       applyStatsVisibility();
     });
 
-    // --- Side drawer open/close ---
     function openDrawer() {
       document.getElementById('sideDrawer').hidden = false;
       document.getElementById('drawerOverlay').hidden = false;
@@ -1447,8 +1427,6 @@
     document.getElementById('hamburgerBtn').addEventListener('click', openDrawer);
     document.getElementById('closeDrawerBtn').addEventListener('click', closeDrawer);
     document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
-
-    // --- Floating add button + add/edit-book panel ---
 
     function fillForm(book) {
       document.getElementById('titleInput').value = book.title || '';
@@ -1472,7 +1450,6 @@
       renderShelfOptions();
     }
 
-    // Call with no argument to add a new book, or with a book object to edit it
     function openAddPanel(book) {
       const t = translations[getLang()];
       editingBookId = book ? book.id : null;
@@ -1484,25 +1461,25 @@
       }
       refreshAddPanelLabels();
 
-      // Search tabs only make sense when adding a brand-new book, not while editing one.
       document.getElementById('searchTitleTabBtn').style.display = editingBookId ? 'none' : '';
       document.getElementById('searchIsbnTabBtn').style.display = editingBookId ? 'none' : '';
+      document.getElementById('scanIsbnTabBtn').style.display = editingBookId ? 'none' : '';
       document.getElementById('searchTitleInput').value = '';
       document.getElementById('searchTitleResults').innerHTML = '';
       document.getElementById('searchIsbnInput').value = '';
       document.getElementById('searchIsbnResults').innerHTML = '';
+      stopScan();
       switchAddTab('manual');
 
       document.getElementById('addPanelOverlay').hidden = false;
     }
 
     function closeAddPanel() {
+      stopScan();
       document.getElementById('addPanelOverlay').hidden = true;
       editingBookId = null;
     }
 
-    // Keeps the panel's title/buttons correct for add-vs-edit mode,
-    // including right after a language switch while the panel is open.
     function refreshAddPanelLabels() {
       const t = translations[getLang()];
       document.getElementById('addPanelTitle').textContent = editingBookId ? t.editBookTitle : t.addBookTitle;
@@ -1576,7 +1553,6 @@
       closeAddPanel();
     });
 
-    // --- Add-panel tab switching (Manual / Search by Title / Search by ISBN) ---
     function switchAddTab(tab) {
       document.querySelectorAll('.add-tab-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.tab === tab);
@@ -1584,15 +1560,12 @@
       document.getElementById('manualTabPanel').hidden = tab !== 'manual';
       document.getElementById('searchTitlePanel').hidden = tab !== 'searchTitle';
       document.getElementById('searchIsbnPanel').hidden = tab !== 'searchIsbn';
+      document.getElementById('scanIsbnPanel').hidden = tab !== 'scanIsbn';
+      if (tab !== 'scanIsbn') stopScan();
     }
     document.querySelectorAll('.add-tab-btn').forEach(btn => {
       btn.addEventListener('click', () => switchAddTab(btn.dataset.tab));
     });
-
-    // --- Book search: Google Books first, Open Library as fallback (Step 9) ---
-    // Google Books has a much larger catalog; Open Library fills in anything it misses.
-    // Both sources are normalized into the same shape so the rest of the code
-    // doesn't need to know which one a result came from.
 
     async function fetchGoogleBooks(url) {
       const fullUrl = GOOGLE_BOOKS_API_KEY
@@ -1690,9 +1663,6 @@
       });
     }
 
-    // Pre-fills only Title, Author, Publisher, ISBN, Language and cover image.
-    // Series, Volume, Shelf, Format, Reading Status and Ownership are left untouched
-    // so the person's current selections in the form aren't overwritten.
     function selectSearchResult(r) {
       document.getElementById('titleInput').value = r.title || '';
       document.getElementById('authorInput').value = r.author || '';
@@ -1709,13 +1679,12 @@
       switchAddTab('manual');
     }
 
-    // Tries Google Books first; if it returns nothing (or fails), falls back to Open Library.
     async function searchWithFallback(googleFn, openLibraryFn, query) {
       try {
         const googleResults = await googleFn(query);
         if (googleResults.length) return googleResults;
       } catch (err) {
-        // Google Books failed outright (e.g. network issue) — fall through to Open Library
+        // Google Books failed outright — fall through to Open Library
       }
       return openLibraryFn(query);
     }
@@ -1757,7 +1726,107 @@
       if (e.key === 'Enter') { e.preventDefault(); runIsbnSearch(); }
     });
 
-    // --- Language dropdown wiring ---
+    // --- ISBN barcode scanning via device camera (Step 10) ---
+    // Uses the browser's built-in BarcodeDetector API — no external library needed.
+    // Supported on Chrome/Edge (Android and desktop). Where it isn't supported,
+    // we show a friendly message and the person can fall back to ISBN search.
+
+    let scanStream = null;
+    let scanRafId = null;
+
+    function isScanSupported() {
+      return ('BarcodeDetector' in window) && !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    }
+
+    function showScanStatus(msg) {
+      const el = document.getElementById('scanStatus');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    async function startScan() {
+      const t = translations[getLang()];
+
+      if (!isScanSupported()) {
+        showScanStatus(t.scanNotSupported);
+        return;
+      }
+
+      let detector;
+      try {
+        detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e'] });
+      } catch (err) {
+        showScanStatus(t.scanNotSupported);
+        return;
+      }
+
+      try {
+        scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      } catch (err) {
+        showScanStatus(t.scanCameraError);
+        return;
+      }
+
+      const video = document.getElementById('scanVideo');
+      video.srcObject = scanStream;
+      try {
+        await video.play();
+      } catch (err) {
+        // stream still runs even if play() is briefly rejected
+      }
+
+      document.getElementById('scanVideoWrap').style.display = 'block';
+      document.getElementById('scanStartBtn').style.display = 'none';
+      showScanStatus(t.scanScanning);
+
+      scanLoop(video, detector);
+    }
+
+    async function scanLoop(video, detector) {
+      if (!scanStream) return;
+
+      try {
+        const barcodes = await detector.detect(video);
+        if (barcodes.length) {
+          const digitsOnly = (barcodes[0].rawValue || '').replace(/[^0-9Xx]/g, '');
+          if (digitsOnly) {
+            handleScannedIsbn(digitsOnly);
+            return;
+          }
+        }
+      } catch (err) {
+        // one failed detection frame isn't fatal — keep trying
+      }
+
+      scanRafId = requestAnimationFrame(() => scanLoop(video, detector));
+    }
+
+    function stopScan() {
+      if (scanRafId) {
+        cancelAnimationFrame(scanRafId);
+        scanRafId = null;
+      }
+      if (scanStream) {
+        scanStream.getTracks().forEach(track => track.stop());
+        scanStream = null;
+      }
+      const video = document.getElementById('scanVideo');
+      video.srcObject = null;
+      document.getElementById('scanVideoWrap').style.display = 'none';
+      document.getElementById('scanStartBtn').style.display = 'block';
+      document.getElementById('scanStatus').style.display = 'none';
+    }
+
+    function handleScannedIsbn(isbn) {
+      stopScan();
+      document.getElementById('searchIsbnInput').value = isbn;
+      switchAddTab('searchIsbn');
+      runIsbnSearch();
+    }
+
+    document.getElementById('scanStartBtn').addEventListener('click', startScan);
+    document.getElementById('scanStopBtn').addEventListener('click', stopScan);
+
     const langToggle = document.getElementById('langToggle');
     const langMenu = document.getElementById('langMenu');
 
@@ -1780,13 +1849,11 @@
       });
     });
 
-    // Close open menus (language / shelf 3-dot) when clicking elsewhere
     document.addEventListener('click', (e) => {
       if (!langMenu.hidden && !e.target.closest('.lang-dropdown')) closeLangMenu();
       closeAllShelfMenus();
     });
 
-    // --- Startup ---
     initShelvesFromBooks();
     switchTab('books');
     translatePage(getLang());
