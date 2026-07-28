@@ -5,7 +5,7 @@
 - **Live app (GitHub Pages)**: https://myspace-a.github.io/Digital_Library/
 
 ## Chat structure
-- **Coach chat** (this one): guidance only — sequencing, GitHub help, quota tips, troubleshooting root causes. Never writes app code here.
+- **Coach chat**: guidance only — sequencing, GitHub help, quota tips, troubleshooting root causes. Never writes app code here.
 - **Requirements chat**: where the spec (Digital_Library_App_Requirements) gets updated/refined.
 - **Build chats**: one per feature (see sequence below). Each build chat starts by loading current code from GitHub, builds ONE feature, then that feature gets committed/pushed before the chat ends. Start a fresh build chat for the next feature.
 
