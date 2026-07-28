@@ -57,3 +57,20 @@ This keeps one single up-to-date version with full change history, instead of tw
 - Keep build chats short and single-feature.
 - Ask for only new/changed code, not full re-prints of unchanged files.
 - Test after each small step rather than batching multiple features before debugging.
+
+## Technical Notes, Configuration & Known Risks
+
+### Repository
+- Repo is **public** (required for GitHub Pages to serve files; a private repo gains no real privacy since the live site exposes source anyway)
+
+### Google Books API key
+- Key is restricted via **HTTP referrer** to `myspace-a.github.io/*`
+- Free tier only — **no billing account attached**
+- Google account used to generate the key: stored privately outside this repo (not documented here — public repo)
+- Key is visible in client-side page source; this is a known, accepted tradeoff for a static (no-backend) app, mitigated by the referrer restriction and lack of billing
+
+### App architecture limits
+- **Client-only app**: no backend server, no login/authentication
+- **Data storage**: book data lives in each browser's own localStorage — not backed up until Google Drive sync (step 15) is built; clearing browser data or switching devices/browsers loses local data
+- **Sharing the live link**: anyone can open and use the app, but each person's data is isolated to their own browser's localStorage — no shared or visible access to others' books/shelves
+- **No per-user accounts**: whoever has the link has full read/write access to whatever data exists in their own session; there's no way to restrict who can use the app
