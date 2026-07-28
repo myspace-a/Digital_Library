@@ -13,6 +13,7 @@
 - **GitHub.com website** (browser-only, no install): create/edit files and commit changes directly at github.com — no git or terminal needed. Used instead of GitHub Desktop, which isn't officially supported on Ubuntu/Linux.
 - VS Code (view/edit files locally when needed): https://code.visualstudio.com — install via the .deb download, double-click to install through Ubuntu Software.
 - GitHub Pages (free hosting for live testing, incl. on Android via "Add to Home Screen")
+- Google cloud for google books API
 
 ## Keeping this doc in sync
 This file lives in the GitHub repo (root or /docs) as the source of truth, not just as a project knowledge upload. Whenever it's updated:
