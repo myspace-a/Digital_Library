@@ -39,6 +39,8 @@ This keeps one single up-to-date version with full change history, instead of tw
 15. Google Drive sync
 16. Android polish / install flow
 
+Step 10 is done.
+
 ## End-of-feature checklist (every build chat)
 1. Confirm the feature works (test in browser / on phone via GitHub Pages URL).
 2. On github.com: open the repo → **Add file → Create new file** (for new files) or click the file → pencil icon (to edit existing ones) → paste the code.
