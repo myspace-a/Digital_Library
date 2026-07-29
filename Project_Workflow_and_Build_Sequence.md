@@ -40,7 +40,7 @@ This keeps one single up-to-date version with full change history, instead of tw
 15. Google Drive sync
 16. Android polish / install flow
 
-Step 11 is done.
+Step 11b is done.
 
 ## End-of-feature checklist (every build chat)
 1. Confirm the feature works (test in browser / on phone via GitHub Pages URL).
