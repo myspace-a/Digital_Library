@@ -83,3 +83,19 @@ Stats counters section — note that visibility is controlled by this toggle (hi
 **UI/UX:**
 - All confirmation dialogs use in-app modals (never browser confirm/alert)
 - No limit on number of books
+
+**Technical Notes** *(implementation details — not user-facing behavior)*
+
+**Google Books API**
+- Endpoint: _(e.g. `https://www.googleapis.com/books/v1/volumes?q=...`)_
+- Auth/API key: _(none needed for basic search, per current plan)_
+- Quota limits: _(fair-use, no published hard cap as of research)_
+- Fields mapped from response → app fields: _(e.g. `volumeInfo.title` → Title, `volumeInfo.imageLinks.thumbnail` → Cover Image)_
+- Known quirks/edge cases: _(fill in as you hit them)_
+
+**Future Enhancements / Backlog** *(not in current build scope)*
+
+1. Extend cover auto-fetch to also trigger when editing an existing book and adding/changing its ISBN, if no cover is currently set.
+2. When adding a book with an ISBN that already exists, offer the option to ignore the new entry or merge it with the existing one.
+3. Bug/UX fix: while renaming a shelf, tapping/dragging the cursor on a touchscreen currently triggers the "open shelf → show books" action. This should be disabled while the rename input is active.
+4. Add a new book field: **Genere** (Genre).
