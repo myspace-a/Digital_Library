@@ -33,6 +33,7 @@ This keeps one single up-to-date version with full change history, instead of tw
 9. Google book and Open Library search integration (Title/ISBN tabs)
 10. ISBN barcode scanning via device camera
 11. Cover image fetching by ISBN
+11b. Split single index.html into three files (index.html, style.css, app.js) — no new features, pure refactor to reduce file size and quota use in future build chats. Reasoning: file had grown past 1,500 lines, making every build chat resend/rebuild the whole thing even for small changes.
 12. Export to XLSX
 13. Import from XLSX + validation
 14. Offline caching (service worker)
