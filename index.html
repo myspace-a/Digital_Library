@@ -48,6 +48,11 @@
     <button id="drawerDrive" class="drawer-item" data-i18n="drawerDrive">Google Drive</button>
   </nav>
 
+  <!-- Hidden file input used by the Import flow (Step 13). Triggered
+       programmatically when the person picks "Importa XLSX" from the
+       Import/Export chooser modal. -->
+  <input type="file" id="importFileInput" accept=".xlsx" hidden>
+
   <div class="page-content">
 
     <div id="statsBar">
