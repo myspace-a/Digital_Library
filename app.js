@@ -89,7 +89,11 @@ const translations = {
     drawerHideStats: 'Nascondi statistiche',
     backToShelves: '← Scaffali',
     confirmDeleteBookTitle: 'Eliminare il libro?',
-    confirmDeleteBookMsg: 'Questa azione non può essere annullata.'
+    confirmDeleteBookMsg: 'Questa azione non può essere annullata.',
+    exportSuccessTitle: 'Esportazione completata',
+    exportSuccessMsg: 'Il file è stato scaricato.',
+    exportEmptyTitle: 'Nessun libro da esportare',
+    exportEmptyMsg: 'Aggiungi almeno un libro prima di esportare.'
   },
   en: {
     appTitle: '📚 My Library',
@@ -167,7 +171,11 @@ const translations = {
     drawerHideStats: 'Hide stats',
     backToShelves: '← Shelves',
     confirmDeleteBookTitle: 'Delete this book?',
-    confirmDeleteBookMsg: 'This action cannot be undone.'
+    confirmDeleteBookMsg: 'This action cannot be undone.',
+    exportSuccessTitle: 'Export complete',
+    exportSuccessMsg: 'The file has been downloaded.',
+    exportEmptyTitle: 'No books to export',
+    exportEmptyMsg: 'Add at least one book before exporting.'
   }
 };
 
@@ -703,8 +711,64 @@ document.getElementById('searchIconBtn').addEventListener('click', showComingSoo
 document.getElementById('sortIconBtn').addEventListener('click', showComingSoon);
 document.getElementById('viewToggleBtn').addEventListener('click', showComingSoon);
 document.getElementById('filterBtn').addEventListener('click', showComingSoon);
-document.getElementById('drawerImportExport').addEventListener('click', showComingSoon);
 document.getElementById('drawerDrive').addEventListener('click', showComingSoon);
+
+// --- Export to XLSX (Step 12) ---
+// Values are always exported in Italian, regardless of the current UI
+// language, since localStorage always stores the Italian canonical values.
+function exportToXlsx() {
+  const books = getBooks();
+  const t = translations[getLang()];
+
+  if (books.length === 0) {
+    showModal({
+      title: t.exportEmptyTitle,
+      msg: t.exportEmptyMsg,
+      primaryLabel: t.modalOkBtn,
+      onPrimary: hideModal
+    });
+    return;
+  }
+
+  const shelfNoneLabel = 'Senza scaffale';
+
+  const header = [
+    'Titolo', 'Autore', 'Editore', 'Serie', 'Volume',
+    'Lingua', 'Formato', 'Stato lettura', 'Posseduto',
+    'Scaffale', 'ISBN', 'Copertina (URL)'
+  ];
+
+  const rows = books.map(b => [
+    b.title || '',
+    b.author || '',
+    b.publisher || '',
+    b.series || '',
+    b.volume || '',
+    b.language || '',
+    b.format || '',
+    b.status || '',
+    b.ownership || '',
+    b.shelf || shelfNoneLabel,
+    b.isbn || '',
+    b.cover || ''
+  ]);
+
+  const worksheet = XLSX.utils.aoa_to_sheet([header, ...rows]);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Libri');
+
+  const today = new Date().toISOString().slice(0, 10);
+  XLSX.writeFile(workbook, `la-mia-biblioteca-${today}.xlsx`);
+
+  closeDrawer();
+  showModal({
+    title: t.exportSuccessTitle,
+    msg: t.exportSuccessMsg,
+    primaryLabel: t.modalOkBtn,
+    onPrimary: hideModal
+  });
+}
+document.getElementById('drawerImportExport').addEventListener('click', exportToXlsx);
 
 const STATS_VISIBLE_KEY = 'biblioteca_stats_visible';
 
