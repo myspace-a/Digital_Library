@@ -115,7 +115,15 @@ const translations = {
     keepExistingBtn: 'Mantieni esistente',
     updateExistingBtn: 'Aggiorna',
     importDoneTitle: 'Importazione completata',
-    importDoneMsg: '{added} libri aggiunti, {updated} aggiornati.'
+    importDoneMsg: '{added} libri aggiunti, {updated} aggiornati.',
+    importBulkChoiceTitle: 'Duplicati trovati',
+    importBulkChoiceMsg: 'Sono stati trovati {count} libri già presenti nella libreria. Vuoi applicare la stessa scelta a tutti, oppure decidere singolarmente?',
+    bulkChoiceBtn: 'Applica a tutti',
+    perItemChoiceBtn: 'Decidi singolarmente',
+    importBulkActionTitle: 'Scegli un\u2019azione per tutti',
+    importBulkActionMsg: 'Cosa vuoi fare con i {count} libri duplicati?',
+    bulkUpdateAllBtn: 'Aggiorna tutti',
+    bulkKeepAllBtn: 'Mantieni tutti gli esistenti'
   },
   en: {
     appTitle: '📚 My Library',
@@ -219,7 +227,15 @@ const translations = {
     keepExistingBtn: 'Keep existing',
     updateExistingBtn: 'Update',
     importDoneTitle: 'Import complete',
-    importDoneMsg: '{added} books added, {updated} updated.'
+    importDoneMsg: '{added} books added, {updated} updated.',
+    importBulkChoiceTitle: 'Duplicates found',
+    importBulkChoiceMsg: 'Found {count} books already in your library. Would you like to apply the same choice to all of them, or decide one by one?',
+    bulkChoiceBtn: 'Apply to all',
+    perItemChoiceBtn: 'Decide individually',
+    importBulkActionTitle: 'Choose an action for all',
+    importBulkActionMsg: 'What do you want to do with the {count} duplicate books?',
+    bulkUpdateAllBtn: 'Update all',
+    bulkKeepAllBtn: 'Keep all existing'
   }
 };
 
@@ -1024,6 +1040,35 @@ async function runImport(parsedRows, newShelfNames) {
   let addedCount = 0;
   let updatedCount = 0;
 
+  // Count how many imported rows match an existing book's ISBN, so we can
+  // offer a bulk keep/update choice when there are many (Step 13 follow-up).
+  const duplicateCount = parsedRows.filter(r =>
+    r.isbn && books.some(b => b.isbn && b.isbn.toLowerCase() === r.isbn.toLowerCase())
+  ).length;
+
+  const BULK_THRESHOLD = 5;
+  let bulkDecision = null; // null = ask per duplicate; true = update all; false = keep all
+
+  if (duplicateCount > BULK_THRESHOLD) {
+    const wantsBulk = await showModalAsync({
+      title: t.importBulkChoiceTitle,
+      msg: t.importBulkChoiceMsg.replace('{count}', duplicateCount),
+      primaryLabel: t.bulkChoiceBtn,
+      secondaryLabel: t.perItemChoiceBtn
+    });
+
+    if (wantsBulk) {
+      bulkDecision = await showModalAsync({
+        title: t.importBulkActionTitle,
+        msg: t.importBulkActionMsg.replace('{count}', duplicateCount),
+        primaryLabel: t.bulkUpdateAllBtn,
+        secondaryLabel: t.bulkKeepAllBtn
+      });
+      // showModalAsync resolves true for the primary button (Update all)
+      // and false for the secondary button (Keep all existing).
+    }
+  }
+
   for (const rowData of parsedRows) {
     const targetBook = rowData.isbn
       ? books.find(b => b.isbn && b.isbn.toLowerCase() === rowData.isbn.toLowerCase())
@@ -1045,12 +1090,14 @@ async function runImport(parsedRows, newShelfNames) {
     };
 
     if (targetBook) {
-      const choseUpdate = await showModalAsync({
-        title: t.importDuplicateTitle,
-        msg: t.importDuplicateMsgPrefix + rowData.title,
-        primaryLabel: t.updateExistingBtn,
-        secondaryLabel: t.keepExistingBtn
-      });
+      const choseUpdate = bulkDecision !== null
+        ? bulkDecision
+        : await showModalAsync({
+            title: t.importDuplicateTitle,
+            msg: t.importDuplicateMsgPrefix + rowData.title,
+            primaryLabel: t.updateExistingBtn,
+            secondaryLabel: t.keepExistingBtn
+          });
       if (!choseUpdate) continue; // keep the existing entry untouched
 
       if (!bookData.cover && bookData.isbn) {
