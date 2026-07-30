@@ -8,6 +8,8 @@
 - **Coach chat**: guidance only — sequencing, GitHub help, quota tips, troubleshooting root causes. Never writes app code here.
 - **Requirements chat**: where the spec (Digital_Library_App_Requirements) gets updated/refined.
 - **Build chats**: one per feature (see sequence below). Each build chat starts by loading current code from GitHub, builds ONE feature, then that feature gets committed/pushed before the chat ends. Start a fresh build chat for the next feature.
+## Related documents
+- **General coding lessons learned chat** (patterns/tips that apply beyond this specific app — e.g. prompting Claude effectively, file structure choices, API key handling) are tracked separately in a dedicated chat and updated to a "Leassos Learned" doc. This file's "Lessons learned" along the way" includes learning of my digital library app project. It will be used to improve my coding skills, track capabilities, issues collected. 
 
 ## Tools
 - **GitHub.com website** (browser-only, no install): create/edit files and commit changes directly at github.com — no git or terminal needed. Used instead of GitHub Desktop, which isn't officially supported on Ubuntu/Linux.
