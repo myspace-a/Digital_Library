@@ -93,7 +93,29 @@ const translations = {
     exportSuccessTitle: 'Esportazione completata',
     exportSuccessMsg: 'Il file è stato scaricato.',
     exportEmptyTitle: 'Nessun libro da esportare',
-    exportEmptyMsg: 'Aggiungi almeno un libro prima di esportare.'
+    exportEmptyMsg: 'Aggiungi almeno un libro prima di esportare.',
+    drawerImportExportChooseMsg: 'Cosa vuoi fare?',
+    exportOptionBtn: 'Esporta XLSX',
+    importOptionBtn: 'Importa XLSX',
+    importMissingColsTitle: 'Colonne mancanti',
+    importMissingColsMsgPrefix: 'Colonne obbligatorie mancanti: ',
+    importUnrecognizedColsPrefix: 'Colonne non riconosciute: ',
+    importMixedHeadersTitle: 'Intestazioni miste',
+    importMixedHeadersMsg: 'Usa tutte le intestazioni in italiano oppure tutte in inglese, non miste.',
+    importParseErrorTitle: 'File non valido',
+    importParseErrorMsg: 'Impossibile leggere il file. Assicurati che sia un file XLSX valido.',
+    importNoRowsTitle: 'Nessun libro trovato',
+    importNoRowsMsg: 'Il file non contiene righe di libri valide.',
+    importConfirmTitle: 'Conferma importazione',
+    importConfirmCountMsg: 'Verranno importati {count} libri.',
+    importConfirmShelvesMsg: 'Verranno creati i nuovi scaffali: {shelves}.',
+    importConfirmBtn: 'Importa',
+    importDuplicateTitle: 'Libro già presente',
+    importDuplicateMsgPrefix: 'Esiste già un libro con questo ISBN: ',
+    keepExistingBtn: 'Mantieni esistente',
+    updateExistingBtn: 'Aggiorna',
+    importDoneTitle: 'Importazione completata',
+    importDoneMsg: '{added} libri aggiunti, {updated} aggiornati.'
   },
   en: {
     appTitle: '📚 My Library',
@@ -175,7 +197,29 @@ const translations = {
     exportSuccessTitle: 'Export complete',
     exportSuccessMsg: 'The file has been downloaded.',
     exportEmptyTitle: 'No books to export',
-    exportEmptyMsg: 'Add at least one book before exporting.'
+    exportEmptyMsg: 'Add at least one book before exporting.',
+    drawerImportExportChooseMsg: 'What would you like to do?',
+    exportOptionBtn: 'Export XLSX',
+    importOptionBtn: 'Import XLSX',
+    importMissingColsTitle: 'Missing columns',
+    importMissingColsMsgPrefix: 'Missing required columns: ',
+    importUnrecognizedColsPrefix: 'Unrecognized columns: ',
+    importMixedHeadersTitle: 'Mixed headers',
+    importMixedHeadersMsg: 'Use all-Italian or all-English headers, not a mix.',
+    importParseErrorTitle: 'Invalid file',
+    importParseErrorMsg: 'Could not read the file. Make sure it is a valid XLSX file.',
+    importNoRowsTitle: 'No books found',
+    importNoRowsMsg: 'The file contains no valid book rows.',
+    importConfirmTitle: 'Confirm import',
+    importConfirmCountMsg: 'You are about to import {count} books.',
+    importConfirmShelvesMsg: 'The following new shelves will be created: {shelves}.',
+    importConfirmBtn: 'Import',
+    importDuplicateTitle: 'Book already in your library',
+    importDuplicateMsgPrefix: 'A book with this ISBN already exists: ',
+    keepExistingBtn: 'Keep existing',
+    updateExistingBtn: 'Update',
+    importDoneTitle: 'Import complete',
+    importDoneMsg: '{added} books added, {updated} updated.'
   }
 };
 
@@ -768,7 +812,279 @@ function exportToXlsx() {
     onPrimary: hideModal
   });
 }
-document.getElementById('drawerImportExport').addEventListener('click', exportToXlsx);
+
+// Import/Export drawer entry now opens a small chooser modal instead of
+// exporting directly, so the person can pick Export or Import (Step 13).
+document.getElementById('drawerImportExport').addEventListener('click', () => {
+  const t = translations[getLang()];
+  showModal({
+    title: t.drawerImportExport,
+    msg: t.drawerImportExportChooseMsg,
+    primaryLabel: t.exportOptionBtn,
+    secondaryLabel: t.importOptionBtn,
+    onPrimary: () => { hideModal(); exportToXlsx(); },
+    onSecondary: () => {
+      hideModal();
+      closeDrawer();
+      document.getElementById('importFileInput').click();
+    }
+  });
+});
+
+// --- Import from XLSX (Step 13) ---
+
+const IMPORT_COLUMNS = [
+  { field: 'title',      it: 'Titolo',        en: 'Title',          required: true,  label: 'Titolo / Title' },
+  { field: 'author',     it: 'Autore',        en: 'Author',         required: true,  label: 'Autore / Author' },
+  { field: 'publisher',  it: 'Editore',       en: 'Publisher',      required: true,  label: 'Editore / Publisher' },
+  { field: 'series',     it: 'Serie',         en: 'Series',         required: true,  label: 'Serie / Series' },
+  { field: 'volume',     it: 'Volume',        en: 'Volume',         required: true,  label: 'Volume' },
+  { field: 'language',   it: 'Lingua',        en: 'Language',       required: true,  label: 'Lingua / Language' },
+  { field: 'format',     it: 'Formato',       en: 'Format',         required: true,  label: 'Formato / Format' },
+  { field: 'status',     it: 'Stato lettura', en: 'Reading Status', required: true,  label: 'Stato lettura / Reading Status' },
+  { field: 'ownership',  it: 'Posseduto',     en: 'Ownership',      required: true,  label: 'Posseduto / Ownership' },
+  { field: 'shelf',      it: 'Scaffale',      en: 'Shelf',          required: true,  label: 'Scaffale / Shelf' },
+  { field: 'isbn',       it: 'ISBN',          en: 'ISBN',           required: true,  label: 'ISBN' },
+  { field: 'cover',      it: 'Copertina',     en: 'Cover Image',    required: false, label: 'Copertina / Cover Image' }
+];
+
+const IMPORT_COLS_BY_FIELD = {};
+IMPORT_COLUMNS.forEach(col => { IMPORT_COLS_BY_FIELD[col.field] = col; });
+
+const STATUS_IMPORT_ALIASES = ['si', 'sì', 'x']; // lower-case, map to 'Letto'
+
+function buildHeaderIndex(headerRow) {
+  const map = {};
+  headerRow.forEach((h, i) => {
+    const key = (h || '').toString().trim();
+    if (key && map[key] === undefined) map[key] = i;
+  });
+  return map;
+}
+
+function validateImportHeaders(headerRow) {
+  const present = new Set(headerRow.filter(Boolean));
+
+  // A header is "language-specific" when the Italian and English versions
+  // differ (e.g. Titolo vs Title). Volume and ISBN are the same in both
+  // languages, so they don't help us detect which language was used.
+  let itSpecificCount = 0;
+  let enSpecificCount = 0;
+  IMPORT_COLUMNS.forEach(col => {
+    if (col.it !== col.en) {
+      if (present.has(col.it)) itSpecificCount++;
+      if (present.has(col.en)) enSpecificCount++;
+    }
+  });
+  const mixed = itSpecificCount > 0 && enSpecificCount > 0;
+
+  const missing = [];
+  IMPORT_COLUMNS.forEach(col => {
+    if (col.required && !present.has(col.it) && !present.has(col.en)) {
+      missing.push(col.label);
+    }
+  });
+
+  const knownHeaders = new Set();
+  IMPORT_COLUMNS.forEach(col => { knownHeaders.add(col.it); knownHeaders.add(col.en); });
+  const unrecognized = headerRow.filter(h => h && !knownHeaders.has(h));
+
+  return { mixed, missing, unrecognized };
+}
+
+function parseImportRow(row, headerIndex) {
+  const get = (field) => {
+    const col = IMPORT_COLS_BY_FIELD[field];
+    const idx = headerIndex[col.it] !== undefined ? headerIndex[col.it] : headerIndex[col.en];
+    if (idx === undefined) return '';
+    const val = row[idx];
+    return val === null || val === undefined ? '' : val.toString().trim();
+  };
+
+  const title = get('title');
+  if (!title) return null; // skip blank rows
+
+  let status = get('status');
+  if (STATUS_IMPORT_ALIASES.includes(status.toLowerCase())) status = 'Letto';
+
+  return {
+    title,
+    author: get('author'),
+    publisher: get('publisher'),
+    series: get('series'),
+    volume: get('volume'),
+    language: get('language'),
+    format: get('format'),
+    status,
+    ownership: get('ownership'),
+    shelf: get('shelf'),
+    isbn: get('isbn'),
+    cover: get('cover')
+  };
+}
+
+// Wraps showModal() in a Promise so the import process can "wait" for the
+// person's choice (e.g. keep vs. update a duplicate) before continuing.
+function showModalAsync({ title, msg, primaryLabel, secondaryLabel }) {
+  return new Promise((resolve) => {
+    showModal({
+      title, msg, primaryLabel, secondaryLabel,
+      onPrimary: () => { hideModal(); resolve(true); },
+      onSecondary: () => { hideModal(); resolve(false); }
+    });
+  });
+}
+
+async function handleImportFile(file) {
+  const t = translations[getLang()];
+
+  let rows;
+  try {
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: 'array' });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+  } catch (err) {
+    showModal({ title: t.importParseErrorTitle, msg: t.importParseErrorMsg, primaryLabel: t.modalOkBtn, onPrimary: hideModal });
+    return;
+  }
+
+  if (!rows.length) {
+    showModal({ title: t.importParseErrorTitle, msg: t.importParseErrorMsg, primaryLabel: t.modalOkBtn, onPrimary: hideModal });
+    return;
+  }
+
+  const headerRow = rows[0].map(h => (h === null || h === undefined ? '' : h.toString().trim()));
+  const dataRows = rows.slice(1);
+
+  const validation = validateImportHeaders(headerRow);
+
+  if (validation.mixed) {
+    showModal({ title: t.importMixedHeadersTitle, msg: t.importMixedHeadersMsg, primaryLabel: t.modalOkBtn, onPrimary: hideModal });
+    return;
+  }
+
+  if (validation.missing.length) {
+    let msg = t.importMissingColsMsgPrefix + validation.missing.join(', ') + '.';
+    if (validation.unrecognized.length) {
+      msg += ' ' + t.importUnrecognizedColsPrefix + validation.unrecognized.join(', ') + '.';
+    }
+    showModal({ title: t.importMissingColsTitle, msg, primaryLabel: t.modalOkBtn, onPrimary: hideModal });
+    return;
+  }
+
+  const headerIndex = buildHeaderIndex(headerRow);
+  const parsedRows = dataRows
+    .map(row => parseImportRow(row, headerIndex))
+    .filter(r => r !== null);
+
+  if (!parsedRows.length) {
+    showModal({ title: t.importNoRowsTitle, msg: t.importNoRowsMsg, primaryLabel: t.modalOkBtn, onPrimary: hideModal });
+    return;
+  }
+
+  const existingShelves = getShelves();
+  const newShelfNames = [];
+  parsedRows.forEach(r => {
+    const shelf = (r.shelf || '').trim();
+    if (shelf &&
+        !existingShelves.some(s => s.toLowerCase() === shelf.toLowerCase()) &&
+        !newShelfNames.some(s => s.toLowerCase() === shelf.toLowerCase())) {
+      newShelfNames.push(shelf);
+    }
+  });
+
+  let confirmMsg = t.importConfirmCountMsg.replace('{count}', parsedRows.length);
+  if (newShelfNames.length) {
+    confirmMsg += ' ' + t.importConfirmShelvesMsg.replace('{shelves}', newShelfNames.join(', '));
+  }
+
+  showModal({
+    title: t.importConfirmTitle,
+    msg: confirmMsg,
+    primaryLabel: t.importConfirmBtn,
+    secondaryLabel: t.modalCancelBtn,
+    onPrimary: () => { hideModal(); runImport(parsedRows, newShelfNames); },
+    onSecondary: hideModal
+  });
+}
+
+async function runImport(parsedRows, newShelfNames) {
+  const t = translations[getLang()];
+
+  if (newShelfNames.length) {
+    const shelves = getShelves();
+    newShelfNames.forEach(name => {
+      if (!shelves.some(s => s.toLowerCase() === name.toLowerCase())) shelves.push(name);
+    });
+    saveShelves(shelves);
+  }
+
+  let books = getBooks();
+  let addedCount = 0;
+  let updatedCount = 0;
+
+  for (const rowData of parsedRows) {
+    const targetBook = rowData.isbn
+      ? books.find(b => b.isbn && b.isbn.toLowerCase() === rowData.isbn.toLowerCase())
+      : null;
+
+    const bookData = {
+      title: rowData.title,
+      author: rowData.author,
+      publisher: rowData.publisher,
+      series: rowData.series,
+      volume: rowData.volume,
+      language: rowData.language,
+      format: rowData.format,
+      status: rowData.status,
+      ownership: rowData.ownership,
+      shelf: rowData.shelf,
+      isbn: rowData.isbn,
+      cover: rowData.cover
+    };
+
+    if (targetBook) {
+      const choseUpdate = await showModalAsync({
+        title: t.importDuplicateTitle,
+        msg: t.importDuplicateMsgPrefix + rowData.title,
+        primaryLabel: t.updateExistingBtn,
+        secondaryLabel: t.keepExistingBtn
+      });
+      if (!choseUpdate) continue; // keep the existing entry untouched
+
+      if (!bookData.cover && bookData.isbn) {
+        bookData.cover = await fetchCoverByIsbn(bookData.isbn).catch(() => '');
+      }
+      if (!bookData.cover) bookData.cover = targetBook.cover || '';
+
+      books = books.map(b => (b.id === targetBook.id ? { ...b, ...bookData } : b));
+      updatedCount++;
+    } else {
+      if (!bookData.cover && bookData.isbn) {
+        bookData.cover = await fetchCoverByIsbn(bookData.isbn).catch(() => '');
+      }
+      books.push({ id: Date.now().toString() + Math.random().toString(36).slice(2, 7), ...bookData });
+      addedCount++;
+    }
+  }
+
+  saveBooks(books);
+  renderAll();
+
+  showModal({
+    title: t.importDoneTitle,
+    msg: t.importDoneMsg.replace('{added}', addedCount).replace('{updated}', updatedCount),
+    primaryLabel: t.modalOkBtn,
+    onPrimary: hideModal
+  });
+}
+
+document.getElementById('importFileInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  e.target.value = ''; // reset so the same file can be picked again later
+  if (file) handleImportFile(file);
+});
 
 const STATS_VISIBLE_KEY = 'biblioteca_stats_visible';
 
