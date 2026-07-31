@@ -59,6 +59,7 @@ Step 14 is done.
 - **Test big structural steps thoroughly**: after a step that touches a lot of the file (e.g. layout restructure), re-check that everything built in *previous* steps still works, not just the new feature.
 - **Watch chat length**: periodically check whether a coach or build chat is getting long, and start fresh once a milestone is reached — history isn't lost as long as key docs are kept current in project knowledge.
 - **Split into separate files once large**: a single-file app gets expensive to rebuild every step once it passes ~1,000+ lines — every build chat has to resend and retype the whole thing even for small changes. Splitting into index.html/style.css/app.js (done at step 11b) means most future build chats only need the one file that's actually changing.
+- **Bump the service worker cache version on every app-shell change**: whenever `index.html`, `style.css`, `app.js`, `manifest.json`, or an icon file changes, also increment `CACHE_NAME`/`RUNTIME_CACHE` in `service-worker.js` (e.g. `v1` → `v2`) and commit both together — otherwise phones keep serving the old cached files after an update.
 
 ## Quota tips
 - Keep build chats short and single-feature.
