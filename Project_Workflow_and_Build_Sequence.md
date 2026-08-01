@@ -54,7 +54,7 @@ This keeps one single up-to-date version with full change history, instead of tw
 
 Step 15 is done.
 
-## Derailed functionality implemeted
+## Functionality details
 
 Google Drive sync (step 15)
 - Manual sync only — no auto-sync. The "Google Drive" drawer item doubles as:
