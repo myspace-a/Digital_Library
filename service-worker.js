@@ -11,14 +11,15 @@
 // Bump CACHE_NAME (e.g. to 'v2') whenever app shell files change, so
 // returning users automatically get the new version instead of a stale cache.
 
-const CACHE_NAME = 'biblioteca-v2';
-const RUNTIME_CACHE = 'biblioteca-runtime-v2';
+const CACHE_NAME = 'biblioteca-v3';
+const RUNTIME_CACHE = 'biblioteca-runtime-v3';
 
 const CORE_ASSETS = [
   './',
   'index.html',
   'style.css',
   'app.js',
+  'drive-sync.js',
   'manifest.json',
   'icon-192.png',
   'icon-512.png'
