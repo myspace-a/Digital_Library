@@ -50,7 +50,8 @@ This keeps one single up-to-date version with full change history, instead of tw
 13. Import from XLSX + validation
 14. Offline caching (service worker)
 15. Google Drive sync
-16. Android polish / install flow
+16. Search & sort functionality — wire up the search box (Title/Author), sort options (Title/Author/Reading Status), and shelf filter chips already laid out in step 7's UI but not yet functional
+17. Android polish / install flow
 
 Step 15 is done.
 
