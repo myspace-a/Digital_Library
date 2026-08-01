@@ -82,8 +82,10 @@ Stats counters section — note that visibility is controlled by this toggle (hi
 - If the import file contains **more than 5 duplicate ISBNs**, ask the user upfront whether to apply one **bulk decision** (keep existing / update with imported data) to all duplicates, or decide **per duplicate** as usual. If **5 or fewer** duplicates are found, always ask per duplicate.
 
 **Google Drive Sync:**
-- Sync operates as a **full overwrite**: triggering sync replaces the existing Google Drive file entirely with the current local data.
-- No merge or incremental sync logic — this is a simpler method deemed sufficient for now.
+- Sync is manual only (no auto-sync); triggered from the Google Drive option in the side drawer
+- Sync always operates as a **full overwrite** — either local data replaces the Drive copy, or the Drive copy replaces local data. There is no per-book merge.
+- If both sides changed since the last sync (conflict), a modal shows book counts and last-changed times for local vs. Drive, and asks the user to choose "Keep local" (overwrites Drive) or "Keep Drive" (overwrites local)
+- If only one side changed, sync proceeds automatically without prompting
 
 **UI/UX:**
 - All confirmation dialogs use in-app modals (never browser confirm/alert)
@@ -107,4 +109,4 @@ Stats counters section — note that visibility is controlled by this toggle (hi
 5. During book edit, allow entering the ISBN manually or scanning it via camera.
 6. After entering/scanning an ISBN during book edit, offer to search for book data (Google Books, then Open Library as fallback); if a match is found, show the proposed updates (including cover image if available) and let the user choose whether to apply them.
 7. During book edit, show the book's current cover; if missing, offer to fetch it via Google Books or Open Library, using the same search capability available when adding a book.
-8. Full-overwrite Drive sync is one-directional (local → Drive); using the app on a second device before that device has synced could unintentionally overwrite existing Drive data. Revisit if multi-device use becomes a real need — options include a "pull from Drive first" prompt, timestamp comparison, or a proper merge strategy.
+8. Drive sync has no automatic merge or timestamp-based auto-resolution — every conflict (both sides changed) requires a manual "Keep local" / "Keep Drive" choice from the user. Revisit if a smarter merge strategy becomes worth the added complexity.
