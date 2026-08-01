@@ -7,12 +7,15 @@
 //  - Everything else (e.g. book cover images, the XLSX library from the CDN)
 //    is fetched from the network and saved into a runtime cache as it's
 //    used, so it's available offline next time if it was seen before.
+//  - Google Drive API calls (Step 15) are never cached — that traffic is
+//    live user data (sync status, book/shelf content) and must always hit
+//    the network, never a stale saved response.
 //
 // Bump CACHE_NAME (e.g. to 'v2') whenever app shell files change, so
 // returning users automatically get the new version instead of a stale cache.
 
-const CACHE_NAME = 'biblioteca-v3';
-const RUNTIME_CACHE = 'biblioteca-runtime-v3';
+const CACHE_NAME = 'biblioteca-v4';
+const RUNTIME_CACHE = 'biblioteca-runtime-v4';
 
 const CORE_ASSETS = [
   './',
@@ -50,6 +53,14 @@ self.addEventListener('fetch', (event) => {
 
   // Only handle GET requests — POST/etc. always go straight to the network.
   if (request.method !== 'GET') return;
+
+  // Google Drive API calls carry live user data (sync status, book/shelf
+  // content) — never serve these from cache, always hit the network.
+  const requestURL = new URL(request.url);
+  if (requestURL.hostname === 'www.googleapis.com') {
+    event.respondWith(fetch(request));
+    return;
+  }
 
   // Page navigations: network first, cache fallback (so offline still opens the app).
   if (request.mode === 'navigate') {
