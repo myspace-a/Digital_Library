@@ -194,20 +194,20 @@ async function driveFindFile(token) {
   const url = 'https://www.googleapis.com/drive/v3/files?spaces=appDataFolder'
     + '&q=' + encodeURIComponent(`name='${DRIVE_FILE_NAME}'`)
     + '&fields=files(id,modifiedTime)';
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' });
   if (!res.ok) throw new Error('drive-list-failed');
   const data = await res.json();
   return (data.files && data.files[0]) || null;
 }
 
 async function driveDownloadFile(token, fileId) {
-  const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
-    headers: { Authorization: `Bearer ${token}` }
+   const res = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: 'no-store'
   });
   if (!res.ok) throw new Error('drive-download-failed');
   return res.json();
 }
-
 async function driveUploadFile(token, fileId, payload) {
   if (fileId) {
     // Existing file: simple media update, no metadata change needed.
