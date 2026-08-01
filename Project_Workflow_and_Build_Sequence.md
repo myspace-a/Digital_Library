@@ -54,6 +54,24 @@ This keeps one single up-to-date version with full change history, instead of tw
 
 Step 15 is done.
 
+## Derailed functionality implemeted
+
+Google Drive sync (step 15)
+- Manual sync only — no auto-sync. The "Google Drive" drawer item doubles as:
+  - Connect (when signed out) → triggers Google sign-in, then runs an initial sync
+  - Sync now (when signed in) → tap again anytime to sync
+  - Disconnect → offered as a secondary option on the result modal after each sync
+- Scope used: drive.appdata — app can only see/edit its own hidden file, not the whole Drive.
+- Storage: single hidden JSON file (biblioteca-data.json) in the Drive "app data" folder —
+  not visible in normal Drive UI by design.
+- Sync behavior: always a full replace, never a merge.
+  - First sync: local data uploaded as-is
+  - No changes either side: no-op
+  - Conflict (both sides changed since last sync): modal shows book counts + last-changed
+    times for local vs. Drive; user picks "Keep local" or "Keep Drive" — whichever is chosen
+    completely overwrites the other side, no per-book merging
+
+
 ## End-of-feature checklist (every build chat)
 1. Confirm the feature works (test in browser / on phone via GitHub Pages URL).
 2. On github.com: open the repo → **Add file → Create new file** (for new files) or click the file → pencil icon (to edit existing ones) → paste the code.
@@ -91,6 +109,11 @@ Whenever a build step adds a **new file** the app loads (JS, CSS, or otherwise),
 - Free tier only — **no billing account attached**
 - Google account used to generate the key: stored privately outside this repo (not documented here — public repo)
 - Key is visible in client-side page source; this is a known, accepted tradeoff for a static (no-backend) app, mitigated by the referrer restriction and lack of billing
+
+### Google Drive Sync
+- OAuth Client ID setup (one-time, done via Google Cloud Console "Clients" page — note the
+  UI has been renamed from the old single "Credentials" page): same project as the Google
+  Books API key, Drive API enabled, consent screen in Testing mode with own account as test user.
 
 ### App architecture limits
 - **Client-only app**: no backend server, no login/authentication
