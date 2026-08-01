@@ -59,6 +59,11 @@ Step 15 is done.
 2. On github.com: open the repo → **Add file → Create new file** (for new files) or click the file → pencil icon (to edit existing ones) → paste the code.
 3. Scroll down → write a short commit message → **Commit changes**.
 4. Start a new chat for the next feature, telling Claude "here's my current code" (paste/upload from GitHub) instead of re-explaining the whole app.
+## Reminder: keep service-worker.js in sync
+Whenever a build step adds a **new file** the app loads (JS, CSS, or otherwise), or changes an **existing app-shell file** (index.html, style.css, app.js, manifest.json, icons):
+1. Add/update the file in service-worker.js's cached-files list
+2. Bump the CACHE_NAME/version (e.g. v1 → v2) — otherwise devices with an already-installed app keep serving the old cached list indefinitely, even after the code is updated
+3. Test offline mode again after any such change (DevTools → Network → Offline, or airplane mode on Android)
 
 ## Lessons learned along the way
 - **"Add from GitHub" is read-only**: it lets Claude pull in current files, but doesn't auto-commit changes back — still paste results into GitHub's website manually.
