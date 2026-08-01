@@ -11,8 +11,8 @@
 // Bump CACHE_NAME (e.g. to 'v2') whenever app shell files change, so
 // returning users automatically get the new version instead of a stale cache.
 
-const CACHE_NAME = 'biblioteca-v1';
-const RUNTIME_CACHE = 'biblioteca-runtime-v1';
+const CACHE_NAME = 'biblioteca-v2';
+const RUNTIME_CACHE = 'biblioteca-runtime-v2';
 
 const CORE_ASSETS = [
   './',
