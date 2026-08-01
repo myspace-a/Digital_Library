@@ -40,11 +40,17 @@ A running log of lessons from building with Claude — meant to carry over acros
 - **What happened:** No test strategy was defined at the start. Testing was purely "does it feel right" (user experience), with no repeatable steps.
   **What I do now:** Define a lightweight test strategy early — a running list of test steps/checks per feature (e.g. "add book → appears in correct shelf → survives page reload") that gets reused and expanded as the project grows, instead of relying on memory/feel each time.
 
+- **What happened:** UX/UI wasn't designed upfront — requirements described features and fields, but not layout. The mismatch only became clear at step 7 (layout restructure), meaning earlier steps were partly built against the wrong shape.
+  **What I do now:** Treat UX/UI as its own requirements step, before or alongside early build steps — not something discovered mid-build. Options to try next time: sketch/describe screen layouts in the requirements doc itself, or use a mockup tool (e.g. a wireframing tool, or even asking Claude to generate an HTML/CSS mockup or a text-based wireframe) to visualize layout early, then translate that into structured requirements before writing app logic.
+
 ## 5. Tools Not Yet Explored
 
 *(Things worth trying/comparing in future projects, not yet evaluated.)*
 
 - **GitHub Copilot** — haven't tried building directly in GitHub with it. Current workflow is Claude (chat-based) + manual paste into GitHub's browser editor. Worth comparing later: where Copilot's in-editor suggestions might complement or replace parts of this workflow, and for what kind of tasks.
+- **AI mockup/wireframe tools** — for planning UX/UI before build (see lesson above). Options to try:
+  - **Gemini** — can produce text/ASCII wireframes plus layout specs (colors, typography, components) from a plain-language prompt describing the screen and flow; can also generate rough visual mockup images, though quality drops for complex interfaces. Likely most useful as a fast, free first pass to turn into requirements text.
+  - **Dedicated wireframing tools** (e.g. Figma, Banani) — more polished/editable canvas if a quick prompt-based mockup isn't precise enough.
 
 ## 5. Tools to Explore / Compare
 
