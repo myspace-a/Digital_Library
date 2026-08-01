@@ -308,6 +308,9 @@ function translatePage(lang) {
 
   applyStatsVisibility();
   refreshAddPanelLabels();
+  // Step 15 hook: let drive-sync.js refresh its own status suffix on the
+  // Google Drive drawer button after the generic i18n pass above resets it.
+  if (typeof updateDriveButtonLabel === 'function') updateDriveButtonLabel();
   renderAll();
 }
 
@@ -318,6 +321,9 @@ function getBooks() {
 
 function saveBooks(books) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
+  // Step 15 hook: record when local data last changed, so drive-sync.js can
+  // compare local vs. Drive timestamps on manual sync.
+  localStorage.setItem('biblioteca_last_modified', Date.now().toString());
 }
 
 function escapeHtml(str) {
@@ -450,6 +456,9 @@ function getShelves() {
 
 function saveShelves(shelves) {
   localStorage.setItem(SHELVES_KEY, JSON.stringify(shelves));
+  // Step 15 hook: same last-modified marker as saveBooks(), so a shelf-only
+  // change (rename, add, delete, merge) is also picked up by manual sync.
+  localStorage.setItem('biblioteca_last_modified', Date.now().toString());
 }
 
 function initShelvesFromBooks() {
@@ -771,7 +780,8 @@ document.getElementById('searchIconBtn').addEventListener('click', showComingSoo
 document.getElementById('sortIconBtn').addEventListener('click', showComingSoon);
 document.getElementById('viewToggleBtn').addEventListener('click', showComingSoon);
 document.getElementById('filterBtn').addEventListener('click', showComingSoon);
-document.getElementById('drawerDrive').addEventListener('click', showComingSoon);
+// Step 15: the Google Drive drawer button is no longer a placeholder —
+// drive-sync.js attaches its own real click handler to #drawerDrive.
 
 // --- Export to XLSX (Step 12) ---
 // Values are always exported in Italian, regardless of the current UI
