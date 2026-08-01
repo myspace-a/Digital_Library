@@ -1,0 +1,60 @@
+# My Claude & Dev Learnings
+
+A running log of lessons from building with Claude — meant to carry over across projects, not just this one.
+
+---
+
+## 1. Working with Claude
+
+- **Split work into separate chats by purpose.** Coach chat (guidance/sequencing only), requirements chat (spec updates only), build chats (one per feature). Mixing purposes in one chat burns quota and gets confusing.
+- **One feature per build chat.** Never ask for the whole app at once. Small, testable steps.
+- **Start each build chat by loading current code from GitHub**, not by re-explaining the whole app from scratch.
+- **Ask for only new/changed code**, not full re-prints of unchanged files — saves quota.
+- **Watch chat length.** Once a chat is getting long, start fresh — as long as key docs (requirements, build sequence) are current, no history is lost.
+- **"Add from GitHub" connector can fail intermittently.** Retry once, then fall back to manually pasting the file content rather than burning quota troubleshooting it.
+- **"Add to project" vs. GitHub sync:** the quick "Add to project" button has no version history and isn't tied to the real repo. Committing to GitHub + using "Sync now" in project knowledge keeps one true version with history — worth the extra clicks for docs you'll keep revising.
+- **GitHub repo-sync setup is browser/desktop only** for initial configuration — not available in the Android app. Set it up once on desktop/browser; using it afterward may still work on mobile.
+
+## 2. Dev Workflow
+
+- **Test after each small step**, rather than batching multiple features before debugging.
+- **Catch structural/architectural issues early.** If something feels off (a UI pattern, a missing layout piece), fix it or insert a new build step before building more on top of it — cheaper than retrofitting later.
+- **Re-test old features after big structural changes.** A step that touches a lot of the file (e.g. a layout restructure) can silently break earlier work — don't just check the new feature.
+- **Split large files once they get big.** A single-file app gets expensive to rebuild every step past ~1,000+ lines, since every build chat has to resend/retype the whole thing even for small changes. Splitting into e.g. index.html / style.css / app.js means most future chats only touch the one file that changed.
+- **One-file-per-type (html/css/js) isn't the end state — it just delays the problem.** In this project, index.html and style.css stayed small, but app.js kept growing since all logic lands in one place. For future projects, plan a further split *within* the logic layer from early on — e.g. separate modules by feature/responsibility (books.js, shelves.js, importExport.js, api.js, ui.js) rather than one growing app.js. Assess this at the requirements/architecture stage, not after the file is already large.
+
+## 3. Project Patterns (reusable architecture decisions)
+
+- **Identify API key needs at the planning stage, not mid-build.** Before starting a new project, check which features will call external APIs (book search, maps, weather, etc.) and whether they need a key. This shapes architecture decisions early (client-only vs. needing a backend) instead of surfacing as a surprise later.
+- **Public repos are fine for GitHub Pages apps** — a private repo gains no real privacy since the live site exposes the source anyway.
+- **Client-side API keys are exposed in page source — know the scope tradeoff.** Restricting by HTTP referrer and using a free tier with no billing attached reduces the risk, but the key is still visible to anyone who looks. This is only acceptable for a test/personal/limited-scope project. For anything with real users or a paid tier, a key needs a backend (even a small serverless function) to stay private.
+- **No-backend apps have real limits**: no login, data lives in each browser's own localStorage (lost on clearing data or switching devices) until a cloud sync step is built. Worth stating this plainly early so it's an accepted tradeoff, not a surprise later.
+- **Identify API key needs at requirements stage, not mid-build.** Early on, ask: will this feature need an external API? Does that API require a key? Knowing this upfront shapes architecture decisions (backend vs. client-only) before code is written around the wrong assumption.
+- **A private API key exposed client-side (visible in page source) is only acceptable for a test/limited-scope project** — not for anything real-world/production. If a project is going to scale or handle real users, plan for a backend or serverless proxy to keep keys server-side instead.
+
+## 4. Mistakes & Fixes
+
+- **What happened:** Didn't ask upfront for logic to be built in small modules by functionality. Result: app.js grew into one large file holding everything.
+  **What I do now:** At project kickoff, explicitly request a file/module structure organized by functionality (e.g. books, shelves, import/export, API calls, UI) — not just by file type (html/css/js) — so no single file becomes a catch-all.
+
+- **What happened:** No test strategy was defined at the start. Testing was purely "does it feel right" (user experience), with no repeatable steps.
+  **What I do now:** Define a lightweight test strategy early — a running list of test steps/checks per feature (e.g. "add book → appears in correct shelf → survives page reload") that gets reused and expanded as the project grows, instead of relying on memory/feel each time.
+
+## 5. Tools Not Yet Explored
+
+*(Things worth trying/comparing in future projects, not yet evaluated.)*
+
+- **GitHub Copilot** — haven't tried building directly in GitHub with it. Current workflow is Claude (chat-based) + manual paste into GitHub's browser editor. Worth comparing later: where Copilot's in-editor suggestions might complement or replace parts of this workflow, and for what kind of tasks.
+
+## 5. Tools to Explore / Compare
+
+- **GitHub Copilot** — not yet tried. Current workflow is Claude (chat) generating full files → manual paste into GitHub's browser editor. Copilot works differently (inline suggestions directly in an editor, incl. GitHub.com's own editor and VS Code). Worth testing on a future project to compare: speed, quota/cost, and whether it suits a no-local-dev-environment workflow as well as the current approach does.
+
+---
+
+## Quota Tips (quick reference)
+
+- Keep build chats short and single-feature.
+- Ask for only new/changed code.
+- Test after each step instead of batching.
+- Start a new chat once a chat is getting long, rather than pushing through.
