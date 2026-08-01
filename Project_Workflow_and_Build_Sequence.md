@@ -23,6 +23,16 @@ This file lives in the GitHub repo (root or /docs) as the source of truth, not j
 2. In project knowledge, use the GitHub sync option ("Sync now") to pull the latest version in — not the quick "Add to project" button from chat, which skips GitHub entirely and has no version history.
 This keeps one single up-to-date version with full change history, instead of two diverging copies.
 
+## File structure
+- **index.html** — page structure/markup only; links to style.css and loads app.js, drive-sync.js
+- **style.css** — all visual styling
+- **app.js** — core app logic: book/shelf data model, localStorage read/write, UI rendering, search, import/export, barcode scanning
+- **drive-sync.js** — Google Drive connection, auth, and sync logic (added step 15); called from app.js via small hook functions rather than being deeply woven into it
+- **service-worker.js** — offline caching; caches the app shell (listed below) on install, serves from cache when offline
+- **manifest.json** — PWA metadata (app name, icons, install behavior) for "Add to Home Screen"
+- **icon-192.png / icon-512.png** — app icons used by manifest.json for home screen/install
+- **Project_Workflow_and_Build_Sequence.md** — this file; process, sequence, and technical notes (not app code, not served to users)
+
 ## Build sequence (small steps, one per chat)
 1. Basic app shell — PWA files (manifest, icon), installable empty page
 2. Book data model + manual add/view/delete (local storage only, no cloud yet)
@@ -42,7 +52,7 @@ This keeps one single up-to-date version with full change history, instead of tw
 15. Google Drive sync
 16. Android polish / install flow
 
-Step 14 is done.
+Step 15 is done.
 
 ## End-of-feature checklist (every build chat)
 1. Confirm the feature works (test in browser / on phone via GitHub Pages URL).
