@@ -90,6 +90,7 @@ Stats counters section — note that visibility is controlled by this toggle (hi
 **UI/UX:**
 - All confirmation dialogs use in-app modals (never browser confirm/alert)
 - No limit on number of books
+- Any icon/button that reveals additional UI (chips, dropdowns, panels) should toggle it closed on a second tap — never require a page refresh to dismiss.
 
 **Technical Notes** *(implementation details — not user-facing behavior)*
 
