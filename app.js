@@ -131,7 +131,8 @@ const translations = {
     bulkKeepAllBtn: 'Mantieni tutti gli esistenti',
     librarySearchPh: 'Cerca per titolo o autore',
     readingStatusLabel: 'Stato lettura',
-    allShelvesChip: 'Tutti'
+    allShelvesChip: 'Tutti',
+    sortByLabel: 'Ordina per:'
   },
   en: {
     appTitle: '📚 My Library',
@@ -246,7 +247,8 @@ const translations = {
     bulkKeepAllBtn: 'Keep all existing',
     librarySearchPh: 'Search by title or author',
     readingStatusLabel: 'Reading Status',
-    allShelvesChip: 'All'
+    allShelvesChip: 'All',
+    sortByLabel: 'Sort by:'
   }
 };
 
