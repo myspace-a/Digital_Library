@@ -514,7 +514,9 @@ h1 { margin: 0; }
   border-radius: 6px;
   font-size: 0.95rem;
 }
-#sortMenuRow { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+#sortMenuRow { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+#sortMenuRow[hidden] { display: none; }
+#sortByLabel { font-size: 0.82rem; color: #666; margin-right: 0.15rem; }
 .sort-opt-btn {
   padding: 0.4rem 0.85rem;
   border: none;
@@ -545,3 +547,4 @@ h1 { margin: 0; }
 }
 .shelf-chip:hover { background: #dfe4e6; }
 .shelf-chip.active { background: #2c3e50; color: white; font-weight: bold; }
+#shelfChipsRow[hidden] { display: none; }
