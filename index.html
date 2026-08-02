@@ -21,6 +21,18 @@
     </div>
   </header>
 
+  <!-- Step 16: library search box, toggled by the top bar search icon -->
+  <div id="librarySearchRow" hidden>
+    <input type="text" id="librarySearchInput" data-i18n-placeholder="librarySearchPh" placeholder="Cerca per titolo o autore">
+  </div>
+
+  <!-- Step 16: sort menu, toggled by the top bar sort icon -->
+  <div id="sortMenuRow" hidden>
+    <button type="button" class="sort-opt-btn active" data-sort="author" data-i18n="phAuthor">Autore</button>
+    <button type="button" class="sort-opt-btn" data-sort="title" data-i18n="phTitle">Titolo</button>
+    <button type="button" class="sort-opt-btn" data-sort="status" data-i18n="readingStatusLabel">Stato lettura</button>
+  </div>
+
   <div id="drawerOverlay" class="drawer-overlay" hidden></div>
   <nav id="sideDrawer" class="side-drawer" hidden>
     <div class="drawer-header">
@@ -84,6 +96,9 @@
       <span id="itemCount"></span>
       <button id="filterBtn" data-i18n-title="filterTitle">▽</button>
     </div>
+
+    <!-- Step 16: shelf filter chips, toggled by the filter icon above -->
+    <div id="shelfChipsRow" hidden></div>
 
     <section id="shelvesView" class="tab-view" hidden>
       <div id="shelfAddRow">
