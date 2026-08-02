@@ -111,3 +111,11 @@ Stats counters section — note that visibility is controlled by this toggle (hi
 6. After entering/scanning an ISBN during book edit, offer to search for book data (Google Books, then Open Library as fallback); if a match is found, show the proposed updates (including cover image if available) and let the user choose whether to apply them.
 7. During book edit, show the book's current cover; if missing, offer to fetch it via Google Books or Open Library, using the same search capability available when adding a book.
 8. Drive sync has no automatic merge or timestamp-based auto-resolution — every conflict (both sides changed) requires a manual "Keep local" / "Keep Drive" choice from the user. Revisit if a smarter merge strategy becomes worth the added complexity.
+9. Add a "mass change shelf" option: select multiple books and reassign them all to a different shelf in one action.
+10. Add a Racks grouping layer, enabled via a toggle in the hamburger menu. Once activated: shelves can be assigned to a rack; one rack can contain multiple shelves; one shelf can belong to at most one rack. Books inherit their rack automatically through their shelf assignment (no separate book-level rack field).
+11. Shelf management gets a "change rack" option per shelf, plus a mass-change option to reassign the rack for multiple shelves at once.
+12. Add a third main tab, Racks, shown alongside Shelves and Books once the Racks feature is activated.
+13.Racks can be created, renamed, and deleted.
+14. Book list filtering extends to support filtering by rack, in addition to the existing shelf filter.
+15. Add Spanish as an additional UI language option in the hamburger menu's language switcher.
+16. Define and implement functionality for the top app bar's view-toggle icon (currently present in the layout with no behavior): toggles the Books list between Compact view (current row style — cover thumbnail, title, author, badges) and Detailed view (adds more per-book info visible inline, e.g. publisher, format, shelf, without opening the book).
