@@ -499,3 +499,49 @@ h1 { margin: 0; }
 #addForm button:hover { background: #34495e; }
 #deleteBookBtn { background: #c0392b; }
 #deleteBookBtn:hover { background: #a93226; }
+
+/* --- Step 16: library search box, sort menu, shelf filter chips --- */
+#librarySearchRow, #sortMenuRow {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0.55rem 0.25rem;
+  background: #f5f6fa;
+}
+#librarySearchRow input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+#sortMenuRow { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.sort-opt-btn {
+  padding: 0.4rem 0.85rem;
+  border: none;
+  border-radius: 6px;
+  background: #ecf0f1;
+  color: #2c3e50;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.sort-opt-btn:hover { background: #dfe4e6; }
+.sort-opt-btn.active { background: #2c3e50; color: white; font-weight: bold; }
+#shelfChipsRow {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0.5rem 0.25rem;
+}
+.shelf-chip {
+  padding: 0.35rem 0.8rem;
+  border: none;
+  border-radius: 6px;
+  background: #ecf0f1;
+  color: #2c3e50;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.shelf-chip:hover { background: #dfe4e6; }
+.shelf-chip.active { background: #2c3e50; color: white; font-weight: bold; }
