@@ -63,6 +63,7 @@ const translations = {
     drawerLangLabel: 'Lingua',
     drawerImportExport: 'Importa / Esporta',
     drawerDrive: 'Google Drive',
+    drawerInstallApp: '📲 Installa app',
     comingSoonTitle: 'Presto disponibile',
     comingSoonMsg: 'Questa funzione sarà disponibile in un prossimo aggiornamento.',
     tabShelves: 'Scaffali',
@@ -179,6 +180,7 @@ const translations = {
     drawerLangLabel: 'Language',
     drawerImportExport: 'Import / Export',
     drawerDrive: 'Google Drive',
+    drawerInstallApp: '📲 Install app',
     comingSoonTitle: 'Coming soon',
     comingSoonMsg: 'This feature will be available in a future update.',
     tabShelves: 'Shelves',
@@ -1312,6 +1314,37 @@ function closeDrawer() {
 document.getElementById('hamburgerBtn').addEventListener('click', openDrawer);
 document.getElementById('closeDrawerBtn').addEventListener('click', closeDrawer);
 document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
+
+// --- Step 17: "Add to Home Screen" install prompt ---
+// Chrome on Android fires 'beforeinstallprompt' when the app qualifies for
+// install (valid manifest + service worker + HTTPS). We intercept it so we
+// can show our own "Install app" button in the drawer instead of relying
+// only on Chrome's own menu — then trigger the native prompt on tap.
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  document.getElementById('drawerInstallBtn').hidden = false;
+});
+
+document.getElementById('drawerInstallBtn').addEventListener('click', async () => {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  // Whether accepted or dismissed, the prompt can only be used once —
+  // hide the button either way and wait for a fresh event if needed.
+  deferredInstallPrompt = null;
+  document.getElementById('drawerInstallBtn').hidden = true;
+  closeDrawer();
+});
+
+// If the app is already installed (or gets installed), there's no point
+// showing an install button anymore.
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  document.getElementById('drawerInstallBtn').hidden = true;
+});
 
 function fillForm(book) {
   document.getElementById('titleInput').value = book.title || '';
