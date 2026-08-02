@@ -12,6 +12,11 @@ let currentTab = 'books';
 let shelfFilter = null;
 let editingBookId = null;
 
+// --- Step 16: library search / sort / filter state ---
+let searchQuery = '';
+let sortBy = 'author'; // 'author' | 'title' | 'status'
+let selectedShelfChips = [];
+
 const translations = {
   it: {
     appTitle: '📚 La Mia Biblioteca',
@@ -123,7 +128,10 @@ const translations = {
     importBulkActionTitle: 'Scegli un\u2019azione per tutti',
     importBulkActionMsg: 'Cosa vuoi fare con i {count} libri duplicati?',
     bulkUpdateAllBtn: 'Aggiorna tutti',
-    bulkKeepAllBtn: 'Mantieni tutti gli esistenti'
+    bulkKeepAllBtn: 'Mantieni tutti gli esistenti',
+    librarySearchPh: 'Cerca per titolo o autore',
+    readingStatusLabel: 'Stato lettura',
+    allShelvesChip: 'Tutti'
   },
   en: {
     appTitle: '📚 My Library',
@@ -235,7 +243,10 @@ const translations = {
     importBulkActionTitle: 'Choose an action for all',
     importBulkActionMsg: 'What do you want to do with the {count} duplicate books?',
     bulkUpdateAllBtn: 'Update all',
-    bulkKeepAllBtn: 'Keep all existing'
+    bulkKeepAllBtn: 'Keep all existing',
+    librarySearchPh: 'Search by title or author',
+    readingStatusLabel: 'Reading Status',
+    allShelvesChip: 'All'
   }
 };
 
@@ -311,6 +322,9 @@ function translatePage(lang) {
   // Step 15 hook: let drive-sync.js refresh its own status suffix on the
   // Google Drive drawer button after the generic i18n pass above resets it.
   if (typeof updateDriveButtonLabel === 'function') updateDriveButtonLabel();
+  // Step 16: shelf filter chips have plain-text labels (shelf names) plus
+  // one translated "All" chip, so just re-render them if visible.
+  if (!document.getElementById('shelfChipsRow').hidden) renderShelfChips();
   renderAll();
 }
 
@@ -371,11 +385,68 @@ function getSurname(author) {
   return parts.length && parts[0] !== '' ? parts[parts.length - 1] : '#';
 }
 
+// --- Step 16: library search / sort / shelf-chip filter ---
+// Applies (in order) the shelf-drilldown filter (breadcrumb navigation, set
+// via viewShelfBooks), OR the shelf filter chips, then the text search box,
+// to the full book list. Used by both renderBooksView and updatePathRow so
+// the item count always matches what's actually shown.
+function getFilteredBooks() {
+  let books = getBooks();
+
+  if (shelfFilter) {
+    books = books.filter(b => (b.shelf || '').toLowerCase() === shelfFilter.toLowerCase());
+  } else if (selectedShelfChips.length) {
+    books = books.filter(b =>
+      selectedShelfChips.some(s => s.toLowerCase() === (b.shelf || '').toLowerCase())
+    );
+  }
+
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    books = books.filter(b =>
+      (b.title || '').toLowerCase().includes(q) || (b.author || '').toLowerCase().includes(q)
+    );
+  }
+
+  return books;
+}
+
+// Builds one book row element. Extracted out of renderBooksView (Step 16)
+// so both the grouped-by-author view and the flat sorted view can reuse it.
+function createBookRowElement(book) {
+  const row = document.createElement('div');
+  row.className = 'book-row';
+  row.dataset.id = book.id;
+  const coverInner = book.cover
+    ? `<img src="${escapeHtml(book.cover)}" alt="" onerror="this.remove(); this.parentElement.textContent='📖';">`
+    : '📖';
+  row.innerHTML = `
+    <div class="book-cover-placeholder">${coverInner}</div>
+    <div class="book-info">
+      <strong>${escapeHtml(book.title)}</strong>
+      <div class="sub">${escapeHtml(book.author)}</div>
+      <div class="badges">
+        <span class="badge">${escapeHtml(translateValue(book.status))}</span>
+        <span class="badge">${escapeHtml(translateValue(book.format))}</span>
+      </div>
+    </div>
+  `;
+  row.addEventListener('click', () => openAddPanel(book));
+  return row;
+}
+
+// Flat (non-grouped) list used when sortBy is 'title' or 'status' (Step 16).
+function renderFlatBookList(container, books) {
+  const sorted = [...books].sort((a, b) => {
+    if (sortBy === 'title') return (a.title || '').localeCompare(b.title || '');
+    if (sortBy === 'status') return (a.status || '').localeCompare(b.status || '');
+    return 0;
+  });
+  sorted.forEach(book => container.appendChild(createBookRowElement(book)));
+}
+
 function renderBooksView() {
-  const allBooks = getBooks();
-  const books = shelfFilter
-    ? allBooks.filter(b => (b.shelf || '').toLowerCase() === shelfFilter.toLowerCase())
-    : allBooks;
+  const books = getFilteredBooks();
   const container = document.getElementById('bookGroups');
   const emptyMsg = document.getElementById('emptyMsg');
   const azIndex = document.getElementById('azIndex');
@@ -387,6 +458,13 @@ function renderBooksView() {
     return;
   }
   emptyMsg.style.display = 'none';
+
+  // Step 16: Title / Reading Status sort shows a flat sorted list instead
+  // of the author-surname grouping (no AZ index in that mode).
+  if (sortBy !== 'author') {
+    renderFlatBookList(container, books);
+    return;
+  }
 
   const groups = {};
   books.forEach(b => {
@@ -410,27 +488,7 @@ function renderBooksView() {
     heading.textContent = letter;
     container.appendChild(heading);
 
-    groups[letter].forEach(book => {
-      const row = document.createElement('div');
-      row.className = 'book-row';
-      row.dataset.id = book.id;
-      const coverInner = book.cover
-        ? `<img src="${escapeHtml(book.cover)}" alt="" onerror="this.remove(); this.parentElement.textContent='📖';">`
-        : '📖';
-      row.innerHTML = `
-        <div class="book-cover-placeholder">${coverInner}</div>
-        <div class="book-info">
-          <strong>${escapeHtml(book.title)}</strong>
-          <div class="sub">${escapeHtml(book.author)}</div>
-          <div class="badges">
-            <span class="badge">${escapeHtml(translateValue(book.status))}</span>
-            <span class="badge">${escapeHtml(translateValue(book.format))}</span>
-          </div>
-        </div>
-      `;
-      row.addEventListener('click', () => openAddPanel(book));
-      container.appendChild(row);
-    });
+    groups[letter].forEach(book => container.appendChild(createBookRowElement(book)));
   });
 
   'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(letter => {
@@ -745,11 +803,13 @@ function updatePathRow() {
     breadcrumb.appendChild(back);
     breadcrumb.append(' / ' + shelfFilter);
 
-    const count = getBooks().filter(b => (b.shelf || '').toLowerCase() === shelfFilter.toLowerCase()).length;
+    // Step 16: reflect search query too, not just the shelf drilldown.
+    const count = getFilteredBooks().length;
     itemCount.textContent = `${count} ${t.itemCountBooksLabel}`;
   } else {
     breadcrumb.textContent = t.breadcrumbBooks;
-    itemCount.textContent = `${getBooks().length} ${t.itemCountBooksLabel}`;
+    // Step 16: reflect active search/sort/filter-chip selection.
+    itemCount.textContent = `${getFilteredBooks().length} ${t.itemCountBooksLabel}`;
   }
 }
 
@@ -776,12 +836,89 @@ function showComingSoon() {
     onPrimary: hideModal
   });
 }
-document.getElementById('searchIconBtn').addEventListener('click', showComingSoon);
-document.getElementById('sortIconBtn').addEventListener('click', showComingSoon);
 document.getElementById('viewToggleBtn').addEventListener('click', showComingSoon);
-document.getElementById('filterBtn').addEventListener('click', showComingSoon);
 // Step 15: the Google Drive drawer button is no longer a placeholder —
 // drive-sync.js attaches its own real click handler to #drawerDrive.
+
+// --- Step 16: library search box (search icon in top bar) ---
+function toggleLibrarySearch() {
+  const row = document.getElementById('librarySearchRow');
+  const opening = row.hidden;
+  row.hidden = !opening;
+  if (opening) {
+    document.getElementById('librarySearchInput').focus();
+  } else {
+    searchQuery = '';
+    document.getElementById('librarySearchInput').value = '';
+    renderBooksView();
+    updatePathRow();
+  }
+}
+document.getElementById('searchIconBtn').addEventListener('click', toggleLibrarySearch);
+document.getElementById('librarySearchInput').addEventListener('input', (e) => {
+  searchQuery = e.target.value.trim();
+  renderBooksView();
+  updatePathRow();
+});
+
+// --- Step 16: sort menu (sort icon in top bar) ---
+function toggleSortMenu() {
+  document.getElementById('sortMenuRow').hidden = !document.getElementById('sortMenuRow').hidden;
+}
+document.getElementById('sortIconBtn').addEventListener('click', toggleSortMenu);
+document.querySelectorAll('.sort-opt-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    sortBy = btn.dataset.sort;
+    document.querySelectorAll('.sort-opt-btn').forEach(b => b.classList.toggle('active', b === btn));
+    document.getElementById('sortMenuRow').hidden = true;
+    renderBooksView();
+  });
+});
+
+// --- Step 16: shelf filter chips (filter icon in the breadcrumb/path row) ---
+function toggleFilterChips() {
+  const row = document.getElementById('shelfChipsRow');
+  const opening = row.hidden;
+  row.hidden = !opening;
+  if (opening) renderShelfChips();
+}
+document.getElementById('filterBtn').addEventListener('click', toggleFilterChips);
+
+function renderShelfChips() {
+  const row = document.getElementById('shelfChipsRow');
+  const t = translations[getLang()];
+  row.innerHTML = '';
+
+  const allChip = document.createElement('button');
+  allChip.type = 'button';
+  allChip.className = 'shelf-chip' + (selectedShelfChips.length === 0 ? ' active' : '');
+  allChip.textContent = t.allShelvesChip;
+  allChip.addEventListener('click', () => {
+    selectedShelfChips = [];
+    renderShelfChips();
+    renderBooksView();
+    updatePathRow();
+  });
+  row.appendChild(allChip);
+
+  getShelves().forEach(name => {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'shelf-chip' + (selectedShelfChips.includes(name) ? ' active' : '');
+    chip.textContent = name;
+    chip.addEventListener('click', () => {
+      if (selectedShelfChips.includes(name)) {
+        selectedShelfChips = selectedShelfChips.filter(s => s !== name);
+      } else {
+        selectedShelfChips.push(name);
+      }
+      renderShelfChips();
+      renderBooksView();
+      updatePathRow();
+    });
+    row.appendChild(chip);
+  });
+}
 
 // --- Export to XLSX (Step 12) ---
 // Values are always exported in Italian, regardless of the current UI
