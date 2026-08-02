@@ -256,7 +256,7 @@ h1 { margin: 0; }
 #azIndex button {
   background: none;
   border: none;
-  padding: 1px 4px;
+  padding: 3px 6px;
   cursor: default;
   color: inherit;
   font-size: 0.7rem;
@@ -548,3 +548,40 @@ h1 { margin: 0; }
 .shelf-chip:hover { background: #dfe4e6; }
 .shelf-chip.active { background: #2c3e50; color: white; font-weight: bold; }
 #shelfChipsRow[hidden] { display: none; }
+
+/* --- Step 17: Android polish — safe-area insets + tap target sizes ---
+   env(safe-area-inset-*) resolves to 0 on devices without a notch/gesture
+   bar, so this is safe everywhere, not just on modern Android phones. */
+#topAppBar {
+  padding-top: calc(0.7rem + env(safe-area-inset-top));
+  padding-left: calc(1rem + env(safe-area-inset-left));
+  padding-right: calc(1rem + env(safe-area-inset-right));
+}
+.page-content {
+  padding-left: calc(1rem + env(safe-area-inset-left));
+  padding-right: calc(1rem + env(safe-area-inset-right));
+  padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+}
+.side-drawer {
+  padding-top: calc(1rem + env(safe-area-inset-top));
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+}
+#fabAdd {
+  right: calc(1.25rem + env(safe-area-inset-right));
+  bottom: calc(1.25rem + env(safe-area-inset-bottom));
+}
+
+/* Bump small icon-only buttons to the standard 44x44px minimum tap target
+   recommended for touchscreens, without changing how big they look
+   (the icon itself keeps its original font-size). */
+#topAppBar button,
+.shelf-menu-btn,
+#filterBtn,
+.drawer-header button,
+.add-panel-header button {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
