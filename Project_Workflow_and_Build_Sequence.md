@@ -9,7 +9,7 @@
 - **Requirements chat**: where the spec (Digital_Library_App_Requirements) gets updated/refined.
 - **Build chats**: one per feature (see sequence below). Each build chat starts by loading current code from GitHub, builds ONE feature, then that feature gets committed/pushed before the chat ends. Start a fresh build chat for the next feature.
 ## Related documents
-- **General coding lessons learned chat** (patterns/tips that apply beyond this specific app — e.g. prompting Claude effectively, file structure choices, API key handling) are tracked separately in a dedicated chat and updated to a "Leassos Learned" doc. This file's "Lessons learned" along the way" includes learning of my digital library app project. It will be used to improve my coding skills, track capabilities, issues collected. 
+- **General coding lessons learned** (patterns/tips that apply beyond this specific app — e.g. prompting Claude effectively, file structure choices, API key handling) are tracked separately in a dedicated chat/doc, not here. This file's "Lessons learned along the way" section stays scoped to La Mia Biblioteca specifically.
 
 ## Tools
 - **GitHub.com website** (browser-only, no install): create/edit files and commit changes directly at github.com — no git or terminal needed. Used instead of GitHub Desktop, which isn't officially supported on Ubuntu/Linux.
@@ -45,7 +45,6 @@ This keeps one single up-to-date version with full change history, instead of tw
 9. Google book and Open Library search integration (Title/ISBN tabs)
 10. ISBN barcode scanning via device camera
 11. Cover image fetching by ISBN
-
 11b. Split single index.html into three files (index.html, style.css, app.js) — no new features, pure refactor to reduce file size and quota use in future build chats. Reasoning: file had grown past 1,500 lines, making every build chat resend/rebuild the whole thing even for small changes.
 12. Export to XLSX
 13. Import from XLSX + validation
@@ -95,6 +94,7 @@ Whenever a build step adds a **new file** the app loads (JS, CSS, or otherwise),
 - **Watch chat length**: periodically check whether a coach or build chat is getting long, and start fresh once a milestone is reached — history isn't lost as long as key docs are kept current in project knowledge.
 - **Split into separate files once large**: a single-file app gets expensive to rebuild every step once it passes ~1,000+ lines — every build chat has to resend and retype the whole thing even for small changes. Splitting into index.html/style.css/app.js (done at step 11b) means most future build chats only need the one file that's actually changing.
 - **Bump the service worker cache version on every app-shell change**: whenever `index.html`, `style.css`, `app.js`, `manifest.json`, or an icon file changes, also increment `CACHE_NAME`/`RUNTIME_CACHE` in `service-worker.js` (e.g. `v1` → `v2`) and commit both together — otherwise phones keep serving the old cached files after an update.
+- **Toggle UI needs explicit testing**: buttons that reveal chips/dropdowns/panels need a second-tap-to-hide check as a standard part of testing — this isn't always obvious to specify upfront, but is a reusable interaction rule once caught (see requirements doc UI/UX section).
 
 ## Quota tips
 - Keep build chats short and single-feature.
