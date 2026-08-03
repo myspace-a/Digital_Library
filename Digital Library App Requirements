@@ -126,3 +126,5 @@ Stats counters section — note that visibility is controlled by this toggle (hi
 19. App icon: to be redesigned to resemble a real library shelving rack (replacing the current placeholder icon)
 20. Prepare Android-ready architecture for Play Store distribution — package as a TWA (Digital Asset Links, signed AAB), verify manifest/service worker meet installability criteria. Key open risk: the Google Books API free tier has a daily quota, which may not hold up under multiple public users — will need to either find additional free-tier book-data APIs to share the load, or budget for a paid tier before going public.
 21. Publish to Google Play Store — create developer account ($25 one-time fee + identity verification), complete store listing (description, screenshots, icon, privacy policy, content rating, data-safety form), run the mandatory 14-day closed test with 12+ testers, then apply for production release.
+22. When fetching a book using Google API or Open Library the publisher field is not populated, fix it
+23. When fetching a book using Google API or Open Library the series and volume number are not populated, fix it
