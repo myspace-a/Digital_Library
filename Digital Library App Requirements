@@ -119,8 +119,8 @@ Stats counters section — note that visibility is controlled by this toggle (hi
 14. Book list filtering extends to support filtering by rack, in addition to the existing shelf filter.
 15. Add Spanish as an additional UI language option in the hamburger menu's language switcher.
 16. Define and implement functionality for the top app bar's view-toggle icon (currently present in the layout with no behavior): toggles the Books list between Compact view (current row style — cover thumbnail, title, author, badges) and Detailed view (adds more per-book info visible inline, e.g. publisher, format, shelf, without opening the book).
-19. Before executing any sync (regardless of direction — "Keep local" or "Keep Drive", or an automatic no-conflict sync), automatically trigger an XLSX export/download of the current local data as a safety backup, using the same export format already defined in Import/Export.
-17App name & icon:
+17. Before executing any sync (regardless of direction — "Keep local" or "Keep Drive", or an automatic no-conflict sync), automatically trigger an XLSX export/download of the current local data as a safety backup, using the same export format already defined in Import/Export.
+18. App name & icon:
 -App name (used for the home-screen icon / PWA install name, fixed regardless of UI language): My Library
 -In-app title text (shown in the top app bar) translates with UI language: "My Library" (EN) / "La Mia Biblioteca" (IT)
-18. App icon: to be redesigned to resemble a real library shelving rack (replacing the current placeholder icon)
+19. App icon: to be redesigned to resemble a real library shelving rack (replacing the current placeholder icon)
