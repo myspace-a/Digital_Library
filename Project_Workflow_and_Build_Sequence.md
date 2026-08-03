@@ -53,7 +53,7 @@ This keeps one single up-to-date version with full change history, instead of tw
 16. Search & sort functionality — wire up the search box (Title/Author), sort options (Title/Author/Reading Status), and shelf filter chips already laid out in step 7's UI but not yet functional
 17. Android polish / install flow
 
-Step 16 is done.
+Step 17 is done project completed
 
 ## Functionality details
 
