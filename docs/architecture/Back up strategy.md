@@ -164,6 +164,9 @@ The same rules apply to technical errors that prevent a provider from accepting 
 - If all eligible providers successfully create and validate the required backup, the risky operation may proceed.
 - If at least one provider succeeds, the operation may proceed with a warning identifying the failed provider.
 - If all providers fail, or no provider is configured, the operation must stop.
+- A provider whose automatic backups are suspended because of an unresolved availability or upload problem is not an eligible provider for the operation.
+
+If all configured providers are unavailable or suspended, the operation must stop and use the manual Excel export fallback.
 
 In the last case:
 1. Digital Library asks the user to perform a manual Excel export.
@@ -274,7 +277,7 @@ The following are not decided in DL-5:
 - Exact numerical thresholds for bulk deletion.
 - Detailed provider authentication implementation.
 - Detailed cloud-provider onboarding screens.
-- Backup format migration and cross-version restoration.
+- Cross-version restoration is explicitly unsupported and is not a deferred requirement.
 - Exact technical implementation of backup integrity and restoration-readiness checks.
 - Release and branch promotion rules.
 - Synchronisation implementation details.
